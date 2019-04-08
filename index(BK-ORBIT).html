@@ -57,7 +57,7 @@
 	<script src="./js/Lensflare.js"></script>
 	<script src="./js/TGALoader.js"></script>
 	<!-- <script src="./js/tweenjs.js"></script> -->
-	<script src="./js/FirstPersonControls.js"></script>
+	<!-- <script src="./js/FirstPersonControls.js"></script> -->
 	<script src="./js/physi.js"></script>
 
 	<!-- <script src="js/Sky.js"></script> -->
@@ -67,7 +67,7 @@
 
 		//添加相机
 		var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
-		camera.position.set(0, 1000, 100);
+		camera.position.set(0, 54, 100);
 
 		var renderer = new THREE.WebGLRenderer();
 		//下面為加了抗鋸齒
@@ -169,12 +169,30 @@
 		}
 
 
-		//渲染動畫
+
+		//第一人稱相機
+		// var camControls = new THREE.FirstPersonControls(camera);
+		// camControls.lookSpeed = 0.2; //鼠标移动查看的速度
+		// camControls.movementSpeed = 20; //相机移动速度
+		// camControls.noFly = true;
+		// camControls.constrainVertical = true; //约束垂直
+		// camControls.verticalMin = 1.0;
+		// camControls.verticalMax = 2.0;
+		// camControls.lon = -100; //进入初始视角x轴的角度
+		// camControls.lat = 0; //初始视角进入后y轴的角度
+
+
+		
 		function animate() {
 			// cube.rotation.x+=0.1;
 			// cube.rotation.y+=0.1;
 			controls.update();
+			// camControls.update();
 			// fpControls.update(clock.getDelta());
+
+			//將相機設定在黑球的位置
+			// setCameraOnBlackPoint();
+
 			requestAnimationFrame(animate);
 			renderer.render(scene, camera);
 			printCameraLog();
@@ -199,10 +217,17 @@
 			// camera.rotation.set(-4.66, -0.40, -1.85);
 		}
 
+
+		//將相機設定在注視點上
+		function setCameraOnBlackPoint() {
+			camera.pasition.set(cameraTargetX, cameraTargetY, cameraTargetZ);
+		}
+
+
 		//相機注視的點
-		var cameraTargetX = 100,
-			cameraTargetY = 100,
-			cameraTargetZ = 100;
+		var cameraTargetX = 0,
+				cameraTargetY = 54,
+				cameraTargetZ = 0;
 		controls.target.x = cameraTargetX;
 		controls.target.y = cameraTargetY;
 		controls.target.z = cameraTargetZ;
@@ -223,7 +248,7 @@
 			controls.target.y = cameraTargetY;
 			controls.target.z = cameraTargetZ;
 
-			//更新注視點的黑球位置
+		//更新注視點的黑球位置
 			sphereMesh.position.set(cameraTargetX, cameraTargetY, cameraTargetZ);
 			scene.add(sphereMesh);
 
@@ -231,10 +256,18 @@
 			return axial;
 		}
 
+
+
+
+
+
+
+
 		//在相機注視點生成球體
 		var sphereR = 10;
 		var sphereGeo = new THREE.SphereGeometry(sphereR, sphereR, sphereR);
 		var sphereMat = new THREE.MeshLambertMaterial({
+			// color: ff0000FF,
 			color: 0x0000FF,
 			wireframe: false
 		})
@@ -242,95 +275,95 @@
 		sphereMesh.position.set(cameraTargetX, cameraTargetY, cameraTargetZ);
 		scene.add(sphereMesh);
 
-		// //移除場景中最後一個新增的物件
-		// function removeCube() {
-		// 	var allChildren = scene.children;
-		// 	var lastObject = allChildren[allChildren.length - 1];
-		// 	if (lastObject instanceof THREE.Mesh) {
-		// 		scene.remove(lastObject);
-		// 		this.numberOfObjects = scene.children.length;
-		// 	}}
+		//移除場景中最後一個新增的物件
+		function removeCube() {
+			var allChildren = scene.children;
+			var lastObject = allChildren[allChildren.length - 1];
+			if (lastObject instanceof THREE.Mesh) {
+				scene.remove(lastObject);
+				this.numberOfObjects = scene.children.length;
+			}}
 
 
 
-			// var fpControls;
-			// fpControls = new THREE.FirstPersonControls(camera);
-			// function initControls() {
+		// var fpControls;
+		// fpControls = new THREE.FirstPersonControls(camera);
+		// function initControls() {
 
-			//     fpControls.lookSpeed = 0.2; //鼠标移动查看的速度
-			//     fpControls.movementSpeed = 20; //相机移动速度
-			//     fpControls.noFly = true;
-			//     fpControls.constrainVertical = true; //约束垂直
-			//     fpControls.verticalMin = 1.0;
-			//     fpControls.verticalMax = 2.0;
-			//     fpControls.lon = -100; //进入初始视角x轴的角度
-			//     fpControls.lat = 0; //初始视角进入后y轴的角度
-			// }
+		//     fpControls.lookSpeed = 0.2; //鼠标移动查看的速度
+		//     fpControls.movementSpeed = 20; //相机移动速度
+		//     fpControls.noFly = true;
+		//     fpControls.constrainVertical = true; //约束垂直
+		//     fpControls.verticalMin = 1.0;
+		//     fpControls.verticalMax = 2.0;
+		//     fpControls.lon = -100; //进入初始视角x轴的角度
+		//     fpControls.lat = 0; //初始视角进入后y轴的角度
+		// }
 
 
-			// 物理引擎
-			// var fp_mesh = new Physijs.BoxMesh(new THREE.CubeGeometry(4, 10, 4), Physijs.createMaterial(new THREE
-			// 	.MeshPhongMaterial({
-			// 		opacity: 0,
-			// 		transparent: true
-			// 	})), 1);
-			// fp_mesh.position.set(0, 0, 0);
-			// scene.add(fp_mesh);
+		// 物理引擎
+		// var fp_mesh = new Physijs.BoxMesh(new THREE.CubeGeometry(4, 10, 4), Physijs.createMaterial(new THREE
+		// 	.MeshPhongMaterial({
+		// 		opacity: 0,
+		// 		transparent: true
+		// 	})), 1);
+		// fp_mesh.position.set(0, 0, 0);
+		// scene.add(fp_mesh);
 
-			// var state = {
-			// 	front: false,
-			// 	back: false,
-			// 	left: false,
-			// 	right: false,
-			// 	angle: 0
-			// };
+		// var state = {
+		// 	front: false,
+		// 	back: false,
+		// 	left: false,
+		// 	right: false,
+		// 	angle: 0
+		// };
 
-			// // document.addEventListener('keydown', onKeyDown, false);
-			// // document.addEventListener('keyup', onKeyUp, false);   
+		// // document.addEventListener('keydown', onKeyDown, false);
+		// // document.addEventListener('keyup', onKeyUp, false);   
 
-			// var velocity = {
-			// x: 0,
-			// y: 0,
-			// z: 0
-			// };
+		// var velocity = {
+		// x: 0,
+		// y: 0,
+		// z: 0
+		// };
 
-			// direction = state.angle;
-			// 	if (state.front && !state.left && !state.back && !state.right) {
-			// 		direction += 0;
-			// 	}
-			// 	if (state.front && state.left && !state.back && !state.right) {
-			// 		direction += 45;
-			// 	}
-			// 	if (!state.front && state.left && !state.back && !state.right) {
-			// 		direction += 90;
-			// 	}
-			// 	if (!state.front && state.left && state.back && !state.right) {
-			// 		direction += 135;
-			// 	}
-			// 	if (!state.front && !state.left && state.back && !state.right) {
-			// 		direction += 180;
-			// 	}
-			// 	if (!state.front && !state.left && state.back && state.right) {
-			// 		direction += 225;
-			// 	}
-			// 	if (!state.front && !state.left && !state.back && state.right) {
-			// 		direction += 270;
-			// 	}
-			// 	if (state.front && !state.left && !state.back && state.right) {
-			// 		direction += 315;
-			// 	}
+		// direction = state.angle;
+		// 	if (state.front && !state.left && !state.back && !state.right) {
+		// 		direction += 0;
+		// 	}
+		// 	if (state.front && state.left && !state.back && !state.right) {
+		// 		direction += 45;
+		// 	}
+		// 	if (!state.front && state.left && !state.back && !state.right) {
+		// 		direction += 90;
+		// 	}
+		// 	if (!state.front && state.left && state.back && !state.right) {
+		// 		direction += 135;
+		// 	}
+		// 	if (!state.front && !state.left && state.back && !state.right) {
+		// 		direction += 180;
+		// 	}
+		// 	if (!state.front && !state.left && state.back && state.right) {
+		// 		direction += 225;
+		// 	}
+		// 	if (!state.front && !state.left && !state.back && state.right) {
+		// 		direction += 270;
+		// 	}
+		// 	if (state.front && !state.left && !state.back && state.right) {
+		// 		direction += 315;
+		// 	}
 
-			// 	velocity.x = -Math.sin(direction * Math.PI / 180) * hmc.moveSpeed;
-			// 	velocity.z = -Math.cos(direction * Math.PI / 180) * hmc.moveSpeed;
-			// 	fp_mesh.setLinearVelocity(velocity);
-			// 	scene.simulate(undefined, 1);
+		// 	velocity.x = -Math.sin(direction * Math.PI / 180) * hmc.moveSpeed;
+		// 	velocity.z = -Math.cos(direction * Math.PI / 180) * hmc.moveSpeed;
+		// 	fp_mesh.setLinearVelocity(velocity);
+		// 	scene.simulate(undefined, 1);
 
-			// 	this.lookSpeed = 0.2;
+		// 	this.lookSpeed = 0.2;
 
-			// 	camera.position.x = fp_mesh.position.x + distance * Math.sin((help.position.x) * Math.PI / 360);
-			// 	camera.position.z = fp_mesh.position.z + distance * Math.cos((help.position.x) * Math.PI / 360);
-			// 	camera.position.y = fp_mesh.position.y + distance * Math.sin((help.position.y) * Math.PI / 360);
-			// 	camera.lookAt(fp_mesh.position);
+		// 	camera.position.x = fp_mesh.position.x + distance * Math.sin((help.position.x) * Math.PI / 360);
+		// 	camera.position.z = fp_mesh.position.z + distance * Math.cos((help.position.x) * Math.PI / 360);
+		// 	camera.position.y = fp_mesh.position.y + distance * Math.sin((help.position.y) * Math.PI / 360);
+		// 	camera.lookAt(fp_mesh.position);
 	</script>
 </body>
 

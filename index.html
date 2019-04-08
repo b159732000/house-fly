@@ -30,7 +30,7 @@
 	</style>
 </head>
 
-<body ontouchstart="">
+<body ontouchstart="" id="demo">
 
 	<div id="log"
 		style="
@@ -46,6 +46,12 @@
 	<button onclick="ChangeCameraTarget('cameraTargetY')">change camera target y</button>
 	<button onclick="ChangeCameraTarget('cameraTargetZ')">change camera target z</button>
 	<button onclick="removeCube()">remove last cube</button>
+	<button onclick="increaseCameraPosition('cameraPositionX')">Increase camera position x</button>
+	<button onclick="increaseCameraPosition('cameraPositionY')">Increase camera position y</button>
+	<button onclick="increaseCameraPosition('cameraPositionZ')">Increase camera position z</button>
+	<button onclick="decreaseCameraPosition('cameraPositionX')">decrease camera position x</button>
+	<button onclick="decreaseCameraPosition('cameraPositionY')">decrease camera position y</button>
+	<button onclick="decreaseCameraPosition('cameraPositionZ')">decrease camera position z</button>
 
 
 
@@ -67,11 +73,12 @@
 
 		//添加相机
 		var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
-		camera.position.set(0, 54, 100);
+		// camera.position.set(0, 54, 100);
 
+		//下下行有抗鋸齒
 		var renderer = new THREE.WebGLRenderer();
-		//下面為加了抗鋸齒
 		// var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		document.body.appendChild(renderer.domElement);
 
@@ -182,18 +189,156 @@
 		// camControls.lat = 0; //初始视角进入后y轴的角度
 
 
-		
+
+		//以下到animate()以前，複製自view-360-panarama
+
+		var element = document.getElementById('demo'),
+			onPointerDownLat,
+			onPointerDownLon,
+			fov = 70,
+			lat = 0,
+			lon = 0,
+			onMouseDownLon = 0,
+			onMouseDownLat = 0,
+			cameraPositionX = 0,
+			cameraPositionY = 0,
+			cameraPositionZ = 0,
+			cameraLookAtPoint = {x: cameraPositionX, y: cameraPositionY, z: cameraPositionZ};
+			// width = window.innerWidth,
+			// height = window.innerHeight,
+			// ratio = width / height;
+
+		element.addEventListener('mousedown', onDocumentMouseDown, false);
+		element.addEventListener('mousewheel', onDocumentMouseWheel, false);
+		element.addEventListener('DOMMouseScroll', onDocumentMouseWheel, false);
+		window.addEventListener('resize', onWindowResized, false);
+
+		function onDocumentMouseDown(event) {
+			event.preventDefault();
+			onPointerDownPointerX = event.clientX;
+			onPointerDownPointerY = event.clientY;
+			onPointerDownLon = lon;
+			onPointerDownLat = lat;
+			isUserInteracting = true;
+			element.addEventListener('mousemove', onDocumentMouseMove, false);
+			element.addEventListener('mouseup', onDocumentMouseUp, false);
+		}
+
+		function onDocumentMouseMove(event) {
+			lon = (event.clientX - onPointerDownPointerX) * -0.175 + onPointerDownLon;
+			lat = (event.clientY - onPointerDownPointerY) * -0.175 + onPointerDownLat;
+		}
+
+		function onDocumentMouseUp(event) {
+			isUserInteracting = false;
+			element.removeEventListener('mousemove', onDocumentMouseMove, false);
+			element.removeEventListener('mouseup', onDocumentMouseUp, false);
+		}
+
+		function onDocumentMouseWheel(event) {
+			// // WebKit
+			// if (event.wheelDeltaY) {
+			// 	fov -= event.wheelDeltaY * 0.05;
+			// 	// Opera / Explorer 9
+			// } else if (event.wheelDelta) {
+			// 	fov -= event.wheelDelta * 0.05;
+			// 	// Firefox
+			// } else if (event.detail) {
+			// 	fov += event.detail * 1.0;
+			// }
+			// if (fov < 45 || fov > 90) {
+			// 	fov = (fov < 45) ? 45 : 90;
+			// }
+			// camera.projectionMatrix.makePerspective(fov, ratio, 1, 1100);
+		}
+
+		function onWindowResized(event) {
+			// renderer.setSize(window.innerWidth, window.innerHeight);
+			// camera.projectionMatrix.makePerspective(fov, window.innerWidth / window.innerHeight, 1, 1100);
+			renderer.setSize(width, height);
+			camera.projectionMatrix.makePerspective(fov, ratio, 1, 1100);
+		}
+
+
+		function render() {
+
+			lat = Math.max(-85, Math.min(85, lat));
+			phi = THREE.Math.degToRad(90 - lat);
+			theta = THREE.Math.degToRad(lon);
+			// camera.position.x = 1 * Math.sin(phi) * Math.cos(theta);
+			// camera.position.y = 1 * Math.cos(phi);
+			// camera.position.z = 1 * Math.sin(phi) * Math.sin(theta);
+			camera.position.x = cameraPositionX + 1 * Math.sin(phi) * Math.cos(theta);
+			camera.position.y = cameraPositionY + 1 * Math.cos(phi);
+			camera.position.z = cameraPositionZ + 1 * Math.sin(phi) * Math.sin(theta);
+			// var log = ("x: " + Math.round(camera.position.x * 1000000000000) / 1000000000000);
+			// log = log + ("<br/>y: " + Math.round(camera.position.y * 1000000000000) / 1000000000000);
+			// log = log + ("<br/>z: " + Math.round(camera.position.z * 1000000000000) / 1000000000000);
+			// // var log = ("x: " + camera.position.x);
+			// // log = log + ("<br/>y: " + camera.position.y);
+			// // log = log + ("<br/>z: " + camera.position.z);
+			// log = log + ("<br/>fov: " + fov);
+			// document.getElementById('log').innerHTML = log;
+			camera.lookAt(new THREE.Vector3(cameraPositionX, cameraPositionY, cameraPositionZ));
+			// camera.lookAt(scene.position);
+			renderer.render(scene, camera);
+		}
+
+		function increaseCameraPosition(axial) {
+			if (axial == "cameraPositionX") {
+				cameraPositionX += 10;
+			}
+			if (axial == "cameraPositionY") {
+				cameraPositionY += 10;
+			}
+			if (axial == "cameraPositionZ") {
+				cameraPositionZ += 10;
+			}
+		}
+
+		function decreaseCameraPosition(axial) {
+			if (axial == "cameraPositionX") {
+				cameraPositionX -= 10;
+			}
+			if (axial == "cameraPositionY") {
+				cameraPositionY -= 10;
+			}
+			if (axial == "cameraPositionZ") {
+				cameraPositionZ -= 10;
+			}
+		}
+
+
 		function animate() {
 			// cube.rotation.x+=0.1;
 			// cube.rotation.y+=0.1;
 			controls.update();
 			// camControls.update();
 			// fpControls.update(clock.getDelta());
+
+			//將相機設定在黑球的位置
+			// setCameraOnBlackPoint();
+
 			requestAnimationFrame(animate);
+			render();
 			renderer.render(scene, camera);
+
 			printCameraLog();
 		}
 		animate();
+		console.log("scene.position = ");
+		console.log(scene.position);
+		console.log("cameraLookAtPoint = ");
+		console.log(cameraLookAtPoint);
+
+		console.log("cameraLookAtPoint轉換為向量");
+		// var test = new THREE.Vector3(0, 1, 0);
+		var test = new THREE.Vector3(cameraPositionX, cameraPositionY, cameraPositionZ);
+		console.log(new THREE.Vector3(cameraPositionX, cameraPositionY, cameraPositionZ));
+
+		//以上到animate()以前，複製自view-360-panarama
+
+
 
 
 
@@ -213,6 +358,13 @@
 			// camera.rotation.set(-4.66, -0.40, -1.85);
 		}
 
+
+		//將相機設定在注視點上
+		function setCameraOnBlackPoint() {
+			camera.pasition.set(cameraTargetX, cameraTargetY, cameraTargetZ);
+		}
+
+
 		//相機注視的點
 		var cameraTargetX = 0,
 				cameraTargetY = 54,
@@ -220,7 +372,7 @@
 		controls.target.x = cameraTargetX;
 		controls.target.y = cameraTargetY;
 		controls.target.z = cameraTargetZ;
-		console.log(controls.target);
+		// console.log(controls.target);
 
 		//控制相機注視的點，每按一下按鈕該軸向+10
 		function ChangeCameraTarget(axial) {
@@ -237,7 +389,7 @@
 			controls.target.y = cameraTargetY;
 			controls.target.z = cameraTargetZ;
 
-		//更新注視點的黑球位置
+			//更新注視點的黑球位置
 			sphereMesh.position.set(cameraTargetX, cameraTargetY, cameraTargetZ);
 			scene.add(sphereMesh);
 
@@ -256,6 +408,7 @@
 		var sphereR = 10;
 		var sphereGeo = new THREE.SphereGeometry(sphereR, sphereR, sphereR);
 		var sphereMat = new THREE.MeshLambertMaterial({
+			// color: ff0000FF,
 			color: 0x0000FF,
 			wireframe: false
 		})
@@ -270,7 +423,8 @@
 			if (lastObject instanceof THREE.Mesh) {
 				scene.remove(lastObject);
 				this.numberOfObjects = scene.children.length;
-			}}
+			}
+		}
 
 
 

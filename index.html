@@ -40,12 +40,12 @@
 
 	<!-- 按鈕 -->
 	<button onclick="logCamera()">console.log(camera)</button>
-	<button onclick="changeCameraView1()">change camera view 1</button>
-	<button onclick="changeCameraView2()">change camera view 2</button>
-	<button onclick="ChangeCameraTarget('cameraTargetX')">change camera target x</button>
-	<button onclick="ChangeCameraTarget('cameraTargetY')">change camera target y</button>
-	<button onclick="ChangeCameraTarget('cameraTargetZ')">change camera target z</button>
-	<button onclick="removeCube()">remove last cube</button>
+	<!-- <button onclick="changeCameraView1()">change camera view 1</button> -->
+	<!-- <button onclick="changeCameraView2()">change camera view 2</button> -->
+	<!-- <button onclick="ChangeCameraTarget('cameraTargetX')">change camera target x</button> -->
+	<!-- <button onclick="ChangeCameraTarget('cameraTargetY')">change camera target y</button> -->
+	<!-- <button onclick="ChangeCameraTarget('cameraTargetZ')">change camera target z</button> -->
+	<!-- <button onclick="removeCube()">remove last cube</button> -->
 	<button onclick="increaseCameraPosition('cameraPositionX')">Increase camera position x</button>
 	<button onclick="increaseCameraPosition('cameraPositionY')">Increase camera position y</button>
 	<button onclick="increaseCameraPosition('cameraPositionZ')">Increase camera position z</button>
@@ -169,10 +169,13 @@
 		//按鈕輸出相機log
 		function printCameraLog() {
 
-			document.getElementById('log').innerHTML = "camera.position.x = " + camera.position.x + "<br>camera.position.y = " +
-				camera.position.y + "<br>camera.position.z = " + camera.position.z +
+			document.getElementById('log').innerHTML =
+				"camera.position.x = " + camera.position.x + "<br>camera.position.y = " + camera.position.y +
+				"<br>camera.position.z = " + camera.position.z +
 				"<br>camera.rotation._x = " + camera.rotation._x + "<br>camera.rotation._y = " + camera.rotation._y +
-				"<br>camera.rotation._z = " + camera.rotation._z;
+				"<br>camera.rotation._z = " + camera.rotation._z +
+				"<br>camera look at point x = " + cameraPositionX + "<br>camera look at point x = " + cameraPositionY +
+				"<br>camera look at point x = " + cameraPositionZ;
 		}
 
 
@@ -201,12 +204,16 @@
 			onMouseDownLon = 0,
 			onMouseDownLat = 0,
 			cameraPositionX = 0,
-			cameraPositionY = 0,
+			cameraPositionY = 54,
 			cameraPositionZ = 0,
-			cameraLookAtPoint = {x: cameraPositionX, y: cameraPositionY, z: cameraPositionZ};
-			// width = window.innerWidth,
-			// height = window.innerHeight,
-			// ratio = width / height;
+			cameraLookAtPoint = {
+				x: cameraPositionX,
+				y: cameraPositionY,
+				z: cameraPositionZ
+			};
+		// width = window.innerWidth,
+		// height = window.innerHeight,
+		// ratio = width / height;
 
 		element.addEventListener('mousedown', onDocumentMouseDown, false);
 		element.addEventListener('mousewheel', onDocumentMouseWheel, false);
@@ -294,6 +301,9 @@
 			if (axial == "cameraPositionZ") {
 				cameraPositionZ += 10;
 			}
+			//更新注視點紅球位置
+			sphereMesh2.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
+			scene.add(sphereMesh2);
 		}
 
 		function decreaseCameraPosition(axial) {
@@ -306,6 +316,9 @@
 			if (axial == "cameraPositionZ") {
 				cameraPositionZ -= 10;
 			}
+			//更新注視點紅球位置
+			sphereMesh2.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
+			scene.add(sphereMesh2);
 		}
 
 
@@ -367,8 +380,8 @@
 
 		//相機注視的點
 		var cameraTargetX = 0,
-				cameraTargetY = 54,
-				cameraTargetZ = 0;
+			cameraTargetY = 54,
+			cameraTargetZ = 0;
 		controls.target.x = cameraTargetX;
 		controls.target.y = cameraTargetY;
 		controls.target.z = cameraTargetZ;
@@ -389,7 +402,7 @@
 			controls.target.y = cameraTargetY;
 			controls.target.z = cameraTargetZ;
 
-			//更新注視點的黑球位置
+			//更新注視點黑球位置
 			sphereMesh.position.set(cameraTargetX, cameraTargetY, cameraTargetZ);
 			scene.add(sphereMesh);
 
@@ -404,7 +417,7 @@
 
 
 
-		//在相機注視點生成球體
+		//在相機注視原始點生成黑球
 		var sphereR = 10;
 		var sphereGeo = new THREE.SphereGeometry(sphereR, sphereR, sphereR);
 		var sphereMat = new THREE.MeshLambertMaterial({
@@ -415,6 +428,19 @@
 		var sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
 		sphereMesh.position.set(cameraTargetX, cameraTargetY, cameraTargetZ);
 		scene.add(sphereMesh);
+
+		//在相機注視點生成紅球
+		var sphereR2 = 0.01;
+		var sphereGeo2 = new THREE.SphereGeometry(sphereR2, sphereR2, sphereR2);
+		var sphereMat2 = new THREE.MeshLambertMaterial({
+			// color: ff0000FF,
+			color: 0xFF0000,
+			wireframe: false
+		})
+		var sphereMesh2 = new THREE.Mesh(sphereGeo2, sphereMat2);
+		sphereMesh2.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
+		scene.add(sphereMesh2);
+
 
 		//移除場景中最後一個新增的物件
 		function removeCube() {

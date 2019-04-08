@@ -273,6 +273,7 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 			var position = this.object.position;
 
+			// targetPosition.Vector3( 1, phi, theta ).add( position );
 			targetPosition.setFromSphericalCoords( 1, phi, theta ).add( position );
 
 			this.object.lookAt( targetPosition );

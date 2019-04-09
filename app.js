@@ -45,8 +45,13 @@ var element = document.getElementById('demo'),
         x: 0,
         y: 54,
         z: -170
-    };
+    },
+    toggle = 0,
+    sphere,
+    spheres = [],
+    spheresIndex = 0;
 //未分類的變數
+var raycaster = new THREE.Raycaster();
 var sky, sunSphere;
 var scene = new THREE.Scene();
 
@@ -54,8 +59,8 @@ var scene = new THREE.Scene();
 
 //設定WebGL Render
 //下下行有抗鋸齒
-var renderer = new THREE.WebGLRenderer();
-// var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+// var renderer = new THREE.WebGLRenderer();
+var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -237,10 +242,15 @@ function render() {
 
 //主動畫animate()
 function animate() {
+    requestAnimationFrame(animate);
     controls.update();
     render();
+    // mouseMoveOnGroundPlayBack();
+    // moveMouseGroundPlayBack(event);
+    // if(sphereMesh2){} else {
+    //     scene.add(sphereMesh2);
+    // }
     // printCameraLog();
-    requestAnimationFrame(animate);
 }
 animate();
 
@@ -259,7 +269,7 @@ function setCameraPositionByClickXY(positionVector) {
 
 
 //計算滑鼠點擊與平面交界 (Raycaster)
-var raycaster = new THREE.Raycaster();
+
 var mouse = new THREE.Vector2();
 
 function scanMouseProjectToObject(event) {
@@ -268,17 +278,141 @@ function scanMouseProjectToObject(event) {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
+    //更新raycaster
     raycaster.setFromCamera(mouse, camera);
-
-    var intersects = raycaster.intersectObjects(scene.children[4].children);
+    var intersects = raycaster.intersectObjects(scene.children[5].children);
 
     setCameraPositionByClickXY(intersects[0].point);
+    console.log(intersects[0].point);
+    // clickGroundPlayBack(intersects[0].point);
 }
 window.addEventListener('click', scanMouseProjectToObject, false);
 
 
 
-//滑鼠點擊地面的視覺回饋
+//滑鼠在地面上移動視覺回饋
+element.addEventListener('mousemove', a, false);
+function a() {
+    event.preventDefault();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+}
+
+var geometryMoMo = new THREE.CylinderGeometry(15, 15, 1);
+// var geometryMoMo = new THREE.SphereBufferGeometry(5);
+var materialMoMo = new THREE.MeshBasicMaterial({
+    color: 0xffffff
+});
+
+sphereInter = new THREE.Mesh(geometryMoMo, materialMoMo);
+sphereInter.visible = false;
+scene.add(sphereInter);
+sphereInter.material.transparent = true;
+sphereInter.material.opacity = 0.7;
+console.log(sphereInter.material.opacity);
+function mouseMoveOnGroundPlayBack() {
+    raycaster.setFromCamera(mouse, camera);
+    var intersects = raycaster.intersectObjects(scene.children[5].children, true);
+    if (intersects.length > 0) {
+        sphereInter.visible = true;
+        sphereInter.position.copy(intersects[0].point);
+    } else {
+        sphereInter.visible = false;
+    }
+    // renderer.render(scene, camera);
+}
+element.addEventListener('mousemove', mouseMoveOnGroundPlayBack, false);
+
+
+
+
+
+
+
+
+
+// // 滑鼠點擊地面的視覺回饋
+// var sphere = {
+//     in: {
+//         ratio: 10,
+//         height: 10,
+//     },
+//     out: {}
+// }
+
+// function clickGroundPlayBack(targetPoint) {
+
+
+
+//     // var sphereInGeo = new THREE.CylinderGeometry(sphere.in.ratio, sphere.in.ratio, sphere.in.height);
+//     // var sphereInMat = new THREE.MeshLambertMaterial({
+//     //     color: 0xFF0000,
+//     //     wireframe: false
+//     // })
+//     // var sphereMesh2 = new THREE.Mesh(sphereInGeo, sphereInMat);
+//     // sphereMesh2.position.set(targetPoint.x, 0, targetPoint.z);
+//     // // scene.add(sphereMesh2);
+//     // createjs.Tween.get(sphere.in).to({
+//     //     ratio: 20
+//     // }, 10000);
+//     // console.log(sphere);
+
+
+
+// }
+
+
+
+// //及時設定
+// //建立紅球
+// //建立圓形 (半徑, 水平分段數(預設8), 垂直分段數(預設6))
+// var sphereGeometry = new THREE.SphereBufferGeometry(10, 32, 32);
+// var sphereMaterial = new THREE.MeshBasicMaterial({
+//     color: 0xff0000
+// });
+// //一直增加紅球數量直到40顆
+// for (var i = 0; i < 40; i++) {
+//     var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+//     scene.add(sphere);
+//     spheres.push(sphere);
+// }
+
+
+
+// function moveMouseGroundPlayBack(event) {
+
+//     //將mouse的螢幕xy座標，轉換為三度空間世界座標的向量的xy
+//     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+//     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+//     //更新raycaster
+//     raycaster.setFromCamera(mouse, camera);
+//     var intersects = raycaster.intersectObjects(scene.children[4].children);
+
+//     //每隔0.02秒繪製一顆紅點
+//     if (toggle > 0.02 && intersects !== null) {
+//         //將新的紅球位置設定為intersects.point的位置
+//         spheres[spheresIndex].position.x.copy(intersects.point.x);
+//         spheres[spheresIndex].position.z.copy(intersects.point.z);
+//         //設定紅球的縮放
+//         spheres[spheresIndex].scale.set(1, 1, 1);
+//         //
+//         spheresIndex = (spheresIndex + 1) % spheres.length;
+//         toggle = 0;
+//     }
+//     for (var i = 0; i < spheres.length; i++) {
+//         var sphere = spheres[i];
+//         sphere.scale.multiplyScalar(0.98);
+//         sphere.scale.clampScalar(0.01, 1);
+//     }
+
+//     // console.log("success");
+//     // console.log(event.clientX);
+
+// }
+// element.addEventListener('mousemove', moveMouseGroundPlayBack, false);
+
+
 
 
 
@@ -419,9 +553,3 @@ window.addEventListener('click', scanMouseProjectToObject, false);
 // var sphereMesh2 = new THREE.Mesh(sphereGeo2, sphereMat2);
 // sphereMesh2.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 // scene.add(sphereMesh2);
-
-
-
-
-//console.log()
-

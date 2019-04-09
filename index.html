@@ -52,6 +52,7 @@
 	<button onclick="decreaseCameraPosition('cameraPositionX')">decrease camera position x</button>
 	<button onclick="decreaseCameraPosition('cameraPositionY')">decrease camera position y</button>
 	<button onclick="decreaseCameraPosition('cameraPositionZ')">decrease camera position z</button>
+	<button onclick="">null</button>
 
 
 
@@ -203,9 +204,10 @@
 			lon = 0,
 			onMouseDownLon = 0,
 			onMouseDownLat = 0,
+			//camera注視點中心
 			cameraPositionX = 0,
 			cameraPositionY = 54,
-			cameraPositionZ = 0,
+			cameraPositionZ = -170,
 			cameraLookAtPoint = {
 				x: cameraPositionX,
 				y: cameraPositionY,
@@ -303,7 +305,7 @@
 			}
 			//更新注視點紅球位置
 			sphereMesh2.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
-			scene.add(sphereMesh2);
+			// scene.add(sphereMesh2);
 		}
 
 		function decreaseCameraPosition(axial) {
@@ -318,7 +320,7 @@
 			}
 			//更新注視點紅球位置
 			sphereMesh2.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
-			scene.add(sphereMesh2);
+			// scene.add(sphereMesh2);
 		}
 
 
@@ -350,6 +352,69 @@
 		console.log(new THREE.Vector3(cameraPositionX, cameraPositionY, cameraPositionZ));
 
 		//以上到animate()以前，複製自view-360-panarama
+
+
+
+		//按照滑鼠點擊位置，設定camera視線中心點的x和y
+
+		function cameraPositionByClickXY(positionVector) {
+			cameraPositionX = positionVector.x;
+			cameraPositionZ = positionVector.z;
+		}
+
+
+
+
+		//射線計算滑鼠點擊與平面交界 START
+
+		var raycaster = new THREE.Raycaster();
+		var mouse = new THREE.Vector2();
+
+
+		function scanMouseProjectToObject(event) {
+
+			//將mouse的螢幕xy座標，轉換為三度空間世界座標的向量的xy
+			mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+			mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+			raycaster.setFromCamera(mouse, camera);
+
+			var intersects = raycaster.intersectObjects(scene.children[6].children);
+
+			console.log(intersects[0].point);
+			cameraPositionByClickXY(intersects[0].point);
+
+			console.log("raycaster = ↓");
+			console.log(raycaster);
+			console.log(raycaster.ray.origin);
+			console.log(raycaster.ray.direction);
+			// materialToRed(intersects);
+		}
+
+		window.addEventListener('click', scanMouseProjectToObject, false);
+
+
+		//射線計算滑鼠點擊與平面交界 END
+
+
+
+		//變換選取到的物件的material
+
+		function materialToRed(target) {
+			var materialToRedMaterial = new THREE.MeshBasicMaterial({
+				color: 0x00ff00
+			});
+			// for( i = 0; i < target.length; i++) {
+			// 	target[i].object.material = materialToRedMaterial;
+			// }
+			target[0].object.material = materialToRedMaterial;
+			console.log("materilaToRed target = ↓");
+			console.log(target);
+		}
+
+		//變換選取到的物件的material END
+
+
 
 
 

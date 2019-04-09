@@ -64,7 +64,7 @@ controls.maxPolarAngle = Math.PI / 2;
 var loader = new THREE.FBXLoader();
 var texLoader = new THREE.TGALoader();
 
-loader.load('./lwf/1111.fbx', function (object) {
+loader.load('./lwf/1111.FBX', function (object) {
     object.traverse(function (child) {
         if (child.isMesh) {
 
@@ -451,84 +451,3 @@ function removeCube() {
         this.numberOfObjects = scene.children.length;
     }
 }
-
-
-
-// var fpControls;
-// fpControls = new THREE.FirstPersonControls(camera);
-// function initControls() {
-
-//     fpControls.lookSpeed = 0.2; //鼠标移动查看的速度
-//     fpControls.movementSpeed = 20; //相机移动速度
-//     fpControls.noFly = true;
-//     fpControls.constrainVertical = true; //约束垂直
-//     fpControls.verticalMin = 1.0;
-//     fpControls.verticalMax = 2.0;
-//     fpControls.lon = -100; //进入初始视角x轴的角度
-//     fpControls.lat = 0; //初始视角进入后y轴的角度
-// }
-
-
-// 物理引擎
-// var fp_mesh = new Physijs.BoxMesh(new THREE.CubeGeometry(4, 10, 4), Physijs.createMaterial(new THREE
-// 	.MeshPhongMaterial({
-// 		opacity: 0,
-// 		transparent: true
-// 	})), 1);
-// fp_mesh.position.set(0, 0, 0);
-// scene.add(fp_mesh);
-
-// var state = {
-// 	front: false,
-// 	back: false,
-// 	left: false,
-// 	right: false,
-// 	angle: 0
-// };
-
-// // document.addEventListener('keydown', onKeyDown, false);
-// // document.addEventListener('keyup', onKeyUp, false);   
-
-// var velocity = {
-// x: 0,
-// y: 0,
-// z: 0
-// };
-
-// direction = state.angle;
-// 	if (state.front && !state.left && !state.back && !state.right) {
-// 		direction += 0;
-// 	}
-// 	if (state.front && state.left && !state.back && !state.right) {
-// 		direction += 45;
-// 	}
-// 	if (!state.front && state.left && !state.back && !state.right) {
-// 		direction += 90;
-// 	}
-// 	if (!state.front && state.left && state.back && !state.right) {
-// 		direction += 135;
-// 	}
-// 	if (!state.front && !state.left && state.back && !state.right) {
-// 		direction += 180;
-// 	}
-// 	if (!state.front && !state.left && state.back && state.right) {
-// 		direction += 225;
-// 	}
-// 	if (!state.front && !state.left && !state.back && state.right) {
-// 		direction += 270;
-// 	}
-// 	if (state.front && !state.left && !state.back && state.right) {
-// 		direction += 315;
-// 	}
-
-// 	velocity.x = -Math.sin(direction * Math.PI / 180) * hmc.moveSpeed;
-// 	velocity.z = -Math.cos(direction * Math.PI / 180) * hmc.moveSpeed;
-// 	fp_mesh.setLinearVelocity(velocity);
-// 	scene.simulate(undefined, 1);
-
-// 	this.lookSpeed = 0.2;
-
-// 	camera.position.x = fp_mesh.position.x + distance * Math.sin((help.position.x) * Math.PI / 360);
-// 	camera.position.z = fp_mesh.position.z + distance * Math.cos((help.position.x) * Math.PI / 360);
-// 	camera.position.y = fp_mesh.position.y + distance * Math.sin((help.position.y) * Math.PI / 360);
-// 	camera.lookAt(fp_mesh.position);

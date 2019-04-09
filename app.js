@@ -109,12 +109,6 @@ scene.background = reflectionCube;
 
 
 
-
-
-
-
-
-
 //按鈕輸出相機log
 function printCameraLog() {
 
@@ -130,7 +124,6 @@ function printCameraLog() {
 
 
 //主要相機控制模組  [以下到animate()以前，複製自view-360-panarama]
-
 var element = document.getElementById('demo'),
     onPointerDownLat,
     onPointerDownLon,
@@ -145,19 +138,22 @@ var element = document.getElementById('demo'),
         y: 54,
         z: -170
     },
+    // width = window.innerWidth,
+    // height = window.innerHeight,
+    // ratio = width / height,
     cameraLookAtPoint = {
         x: cameraPosition.x,
         y: cameraPosition.y,
         z: cameraPosition.z
     };
-// width = window.innerWidth,
-// height = window.innerHeight,
-// ratio = width / height;
 
+
+
+
+//滑鼠事件監聽器
 element.addEventListener('mousedown', onDocumentMouseDown, false);
 element.addEventListener('mousewheel', onDocumentMouseWheel, false);
 element.addEventListener('DOMMouseScroll', onDocumentMouseWheel, false);
-window.addEventListener('resize', onWindowResized, false);
 
 function onDocumentMouseDown(event) {
     event.preventDefault();
@@ -198,6 +194,11 @@ function onDocumentMouseWheel(event) {
     // camera.projectionMatrix.makePerspective(fov, ratio, 1, 1100);
 }
 
+
+
+//視窗大小調整事件監聽器
+window.addEventListener('resize', onWindowResized, false);
+
 function onWindowResized(event) {
     // renderer.setSize(window.innerWidth, window.innerHeight);
     // camera.projectionMatrix.makePerspective(fov, window.innerWidth / window.innerHeight, 1, 1100);
@@ -206,8 +207,9 @@ function onWindowResized(event) {
 }
 
 
-function render() {
 
+//渲染器
+function render() {
     lat = Math.max(-85, Math.min(85, lat));
     phi = THREE.Math.degToRad(90 - lat);
     theta = THREE.Math.degToRad(lon);
@@ -230,6 +232,9 @@ function render() {
     renderer.render(scene, camera);
 }
 
+
+
+//按鈕事件
 function increaseCameraPosition(axial) {
     if (axial == "cameraPositionX") {
         cameraPosition.x += 10;
@@ -261,6 +266,8 @@ function decreaseCameraPosition(axial) {
 }
 
 
+
+//主動畫
 function animate() {
     controls.update();
 

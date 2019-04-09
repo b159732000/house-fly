@@ -1,18 +1,19 @@
 /*----------------------------
+- 宣告變數
 - 設定WebGL Render
 - 加入相機
 - 加入直射光
 - 載入相機控制器 (Orbitcontrol)
 - 讀取FBX模型
 - 加入場景背景 (CubeMap)
-- 滑鼠事件監聽器             [複製自view-360-panarama]
-- 視窗大小調整事件監聽器     [複製自view-360-panarama]
+- 滑鼠事件監聽器               [複製自view-360-panarama]
+- 視窗大小調整事件監聽器        [複製自view-360-panarama]
 - 主要相機控制模組
-    - 宣告變數
-    - 渲染器                    [複製自view-360-panarama]
-    - 主動畫animate()             [複製自view-360-panarama]
+    - 渲染器                  [複製自view-360-panarama]
+    - 主動畫animate()         [複製自view-360-panarama]
     - 按照滑鼠點擊位置，設定camera視線中心點的x和y
     - 計算滑鼠點擊與平面交界 (Raycaster)
+    - 滑鼠點擊地面的視覺回饋
 - 除錯輔助工具
     - HTML按鈕
         - 按一下增加減少相機視線中心x、y、z軸10，並更新注視點紅球位置
@@ -26,7 +27,26 @@
 ------------------------------*/
 
 
-
+//宣告變數
+//主相機控制模組與addeventlistener的變數
+var element = document.getElementById('demo'),
+    onPointerDownLat,
+    onPointerDownLon,
+    fov = 70,
+    lat = 0,
+    lon = 0,
+    onMouseDownLon = 0,
+    onMouseDownLat = 0,
+    //camera注視點中心
+    // width = window.innerWidth,
+    // height = window.innerHeight,
+    // ratio = width / height,
+    cameraPosition = {
+        x: 0,
+        y: 54,
+        z: -170
+    };
+//未分類的變數
 var sky, sunSphere;
 var scene = new THREE.Scene();
 
@@ -130,7 +150,7 @@ refractionCube.format = THREE.RGBFormat;
 scene.background = reflectionCube;
 
 
-//滑鼠事件監聽器
+//滑鼠事件監聽器 [複製自view-360-panarama]
 element.addEventListener('mousedown', onDocumentMouseDown, false);
 element.addEventListener('mousewheel', onDocumentMouseWheel, false);
 element.addEventListener('DOMMouseScroll', onDocumentMouseWheel, false);
@@ -176,7 +196,7 @@ function onDocumentMouseWheel(event) {
 
 
 
-//視窗大小調整事件監聽器
+//視窗大小調整事件監聽器 [複製自view-360-panarama]
 window.addEventListener('resize', onWindowResized, false);
 
 function onWindowResized(event) {
@@ -189,27 +209,6 @@ function onWindowResized(event) {
 
 
 //主要相機控制模組
-//宣告變數
-var element = document.getElementById('demo'),
-    onPointerDownLat,
-    onPointerDownLon,
-    fov = 70,
-    lat = 0,
-    lon = 0,
-    onMouseDownLon = 0,
-    onMouseDownLat = 0,
-    //camera注視點中心
-    cameraPosition = {
-        x: 0,
-        y: 54,
-        z: -170
-    };
-    // width = window.innerWidth,
-    // height = window.innerHeight,
-    // ratio = width / height,
-
-
-
 //渲染器 [複製自view-360-panarama]
 function render() {
     lat = Math.max(-85, Math.min(85, lat));
@@ -221,6 +220,8 @@ function render() {
     camera.position.x = cameraPosition.x + 1 * Math.sin(phi) * Math.cos(theta);
     camera.position.y = cameraPosition.y + 1 * Math.cos(phi);
     camera.position.z = cameraPosition.z + 1 * Math.sin(phi) * Math.sin(theta);
+    camera.lookAt(new THREE.Vector3(cameraPosition.x, cameraPosition.y, cameraPosition.z));
+    renderer.render(scene, camera);
     // var log = ("x: " + Math.round(camera.position.x * 1000000000000) / 1000000000000);
     // log = log + ("<br/>y: " + Math.round(camera.position.y * 1000000000000) / 1000000000000);
     // log = log + ("<br/>z: " + Math.round(camera.position.z * 1000000000000) / 1000000000000);
@@ -229,9 +230,7 @@ function render() {
     // // log = log + ("<br/>z: " + camera.position.z);
     // log = log + ("<br/>fov: " + fov);
     // document.getElementById('log').innerHTML = log;
-    camera.lookAt(new THREE.Vector3(cameraPosition.x, cameraPosition.y, cameraPosition.z));
     // camera.lookAt(scene.position);
-    renderer.render(scene, camera);
 }
 
 
@@ -279,7 +278,7 @@ window.addEventListener('click', scanMouseProjectToObject, false);
 
 
 
-
+//滑鼠點擊地面的視覺回饋
 
 
 

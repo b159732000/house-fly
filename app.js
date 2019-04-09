@@ -1,30 +1,44 @@
 /*----------------------------
+- 設定WebGL Render
 - 加入相機
 - 加入直射光
-- 相機控制器(Orbitcontrol)
+- 載入相機控制器 (Orbitcontrol)
 - 讀取FBX模型
-- 設定WebGL Render
-- 加入Cube Map
+- 加入場景背景 (CubeMap)
+- 滑鼠事件監聽器             [複製自view-360-panarama]
+- 視窗大小調整事件監聽器     [複製自view-360-panarama]
 - 主要相機控制模組
-    - 滑鼠事件監聽器             [複製自view-360-panarama]
-    - 視窗大小調整事件監聽器     [複製自view-360-panarama]
+    - 宣告變數
     - 渲染器                    [複製自view-360-panarama]
-    - 主動畫Animate             [複製自view-360-panarama]
+    - 主動畫animate()             [複製自view-360-panarama]
     - 按照滑鼠點擊位置，設定camera視線中心點的x和y
     - 計算滑鼠點擊與平面交界 (Raycaster)
 - 除錯輔助工具
-    - HTML按鈕事件
+    - HTML按鈕
         - 按一下增加減少相機視線中心x、y、z軸10，並更新注視點紅球位置
         - 切換相機到指定位置
         - 控制相機注視的點，每按一下按鈕該軸向+10
         - 移除場景中最後一個新增的物件
+        - 輸出相機log
+        - 在相機注視原始點生成黑球
     - 變換選取到的物件的material
+    - 在相機注視點生成紅球
 ------------------------------*/
 
 
 
 var sky, sunSphere;
 var scene = new THREE.Scene();
+
+
+
+//設定WebGL Render
+//下下行有抗鋸齒
+var renderer = new THREE.WebGLRenderer();
+// var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
 
 
 //添加相机
@@ -62,15 +76,15 @@ function addLight(h, s, l, x, y, z) {
 
 
 
-//相机控制器
+//載入相機控制器 (Orbitcontrol)
 var controls = new THREE.OrbitControls(camera);
-controls.enableZoom = true;
-controls.minDistance = 0;
-controls.maxDistance = 1000;
-controls.enableDamping = true;
-controls.dampingFactor = 0.2;
-controls.rotateSpeed = 0.5;
-controls.maxPolarAngle = Math.PI / 2;
+// controls.enableZoom = true;
+// controls.minDistance = 0;
+// controls.maxDistance = 1000;
+// controls.enableDamping = true;
+// controls.dampingFactor = 0.2;
+// controls.rotateSpeed = 0.5;
+// controls.maxPolarAngle = Math.PI / 2;
 
 
 
@@ -99,13 +113,7 @@ loader.load('./lwf/1111.FBX', function (object) {
 
 
 
-//下下行有抗鋸齒
-var renderer = new THREE.WebGLRenderer();
-// var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-//添加CubeMap
+//加入場景背景 (CubeMap)
 var path = "pic/";
 var format = ".jpg";
 var urls = [
@@ -120,48 +128,6 @@ refractionCube.mapping = THREE.CubeRefractionMapping;
 refractionCube.format = THREE.RGBFormat;
 
 scene.background = reflectionCube;
-
-
-
-//按鈕輸出相機log
-function printCameraLog() {
-
-    document.getElementById('log').innerHTML =
-        "camera.position.x = " + camera.position.x + "<br>camera.position.y = " + camera.position.y +
-        "<br>camera.position.z = " + camera.position.z +
-        "<br>camera.rotation._x = " + camera.rotation._x + "<br>camera.rotation._y = " + camera.rotation._y +
-        "<br>camera.rotation._z = " + camera.rotation._z +
-        "<br>camera look at point x = " + cameraPosition.x + "<br>camera look at point x = " + cameraPosition.y +
-        "<br>camera look at point x = " + cameraPosition.z;
-}
-
-
-
-
-//主要相機控制模組  [以下到animate()以前，複製自view-360-panarama]
-var element = document.getElementById('demo'),
-    onPointerDownLat,
-    onPointerDownLon,
-    fov = 70,
-    lat = 0,
-    lon = 0,
-    onMouseDownLon = 0,
-    onMouseDownLat = 0,
-    //camera注視點中心
-    cameraPosition = {
-        x: 0,
-        y: 54,
-        z: -170
-    },
-    // width = window.innerWidth,
-    // height = window.innerHeight,
-    // ratio = width / height,
-    cameraLookAtPoint = {
-        x: cameraPosition.x,
-        y: cameraPosition.y,
-        z: cameraPosition.z
-    };
-
 
 
 //滑鼠事件監聽器
@@ -222,7 +188,29 @@ function onWindowResized(event) {
 
 
 
-//渲染器
+//主要相機控制模組
+//宣告變數
+var element = document.getElementById('demo'),
+    onPointerDownLat,
+    onPointerDownLon,
+    fov = 70,
+    lat = 0,
+    lon = 0,
+    onMouseDownLon = 0,
+    onMouseDownLat = 0,
+    //camera注視點中心
+    cameraPosition = {
+        x: 0,
+        y: 54,
+        z: -170
+    };
+    // width = window.innerWidth,
+    // height = window.innerHeight,
+    // ratio = width / height,
+
+
+
+//渲染器 [複製自view-360-panarama]
 function render() {
     lat = Math.max(-85, Math.min(85, lat));
     phi = THREE.Math.degToRad(90 - lat);
@@ -248,54 +236,32 @@ function render() {
 
 
 
-
-
-
-
-//主動畫
+//主動畫animate()
 function animate() {
     controls.update();
-
-    requestAnimationFrame(animate);
     render();
-    renderer.render(scene, camera);
-
-    printCameraLog();
+    // printCameraLog();
+    requestAnimationFrame(animate);
 }
 animate();
-
-//以上到animate()以前，複製自view-360-panarama
-
 
 
 
 //按照滑鼠點擊位置，設定camera視線中心點的x和y
-
 function setCameraPositionByClickXY(positionVector) {
-    // cameraPositionX = positionVector.x;
-    // cameraPositionZ = positionVector.z;
     createjs.Tween.get(cameraPosition).to({
         x: positionVector.x
     }, 1000);
     createjs.Tween.get(cameraPosition).to({
         z: positionVector.z
     }, 1000);
-    // createjs.Tween.get(cameraPosition).to({x:positionVector.x}, 1000);
-    // createjs.Tween.get(cameraPosition).to({z:positionVector.z}, 1000);
-    console.log(cameraPosition);
-
-    console.log("createjs ↓");
-    console.log(createjs);
-
 }
 
 
 
 //計算滑鼠點擊與平面交界 (Raycaster)
-
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
-
 
 function scanMouseProjectToObject(event) {
 
@@ -305,16 +271,9 @@ function scanMouseProjectToObject(event) {
 
     raycaster.setFromCamera(mouse, camera);
 
-    var intersects = raycaster.intersectObjects(scene.children[6].children);
+    var intersects = raycaster.intersectObjects(scene.children[4].children);
 
-    console.log(intersects[0].point);
     setCameraPositionByClickXY(intersects[0].point);
-
-    console.log("raycaster = ↓");
-    console.log(raycaster);
-    console.log(raycaster.ray.origin);
-    console.log(raycaster.ray.direction);
-    // materialToRed(intersects);
 }
 window.addEventListener('click', scanMouseProjectToObject, false);
 
@@ -322,39 +281,7 @@ window.addEventListener('click', scanMouseProjectToObject, false);
 
 
 
-//相機注視的點
-var cameraTargetX = 0,
-    cameraTargetY = 54,
-    cameraTargetZ = 0;
-controls.target.x = cameraTargetX;
-controls.target.y = cameraTargetY;
-controls.target.z = cameraTargetZ;
-// console.log(controls.target);
 
-
-//在相機注視原始點生成黑球
-var sphereR = 10;
-var sphereGeo = new THREE.SphereGeometry(sphereR, sphereR, sphereR);
-var sphereMat = new THREE.MeshLambertMaterial({
-    // color: ff0000FF,
-    color: 0x0000FF,
-    wireframe: false
-})
-var sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
-sphereMesh.position.set(cameraTargetX, cameraTargetY, cameraTargetZ);
-scene.add(sphereMesh);
-
-//在相機注視點生成紅球
-var sphereR2 = 0.01;
-var sphereGeo2 = new THREE.SphereGeometry(sphereR2, sphereR2, sphereR2);
-var sphereMat2 = new THREE.MeshLambertMaterial({
-    // color: ff0000FF,
-    color: 0xFF0000,
-    wireframe: false
-})
-var sphereMesh2 = new THREE.Mesh(sphereGeo2, sphereMat2);
-sphereMesh2.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-scene.add(sphereMesh2);
 
 
 
@@ -363,96 +290,139 @@ scene.add(sphereMesh2);
 //---------------------------除錯輔助工具---------------------------
 
 //HTML按鈕事件 - 按一下增加減少相機視線中心x、y、z軸10，並更新注視點紅球位置
-function increaseCameraPosition(axial) {
-    if (axial == "cameraPositionX") {
-        cameraPosition.x += 10;
-    }
-    if (axial == "cameraPositionY") {
-        cameraPosition.y += 10;
-    }
-    if (axial == "cameraPositionZ") {
-        cameraPosition.z += 10;
-    }
-    //更新注視點紅球位置
-    sphereMesh2.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-    // scene.add(sphereMesh2);
-}
-function decreaseCameraPosition(axial) {
-    if (axial == "cameraPositionX") {
-        cameraPosition.x -= 10;
-    }
-    if (axial == "cameraPositionY") {
-        cameraPosition.y -= 10;
-    }
-    if (axial == "cameraPositionZ") {
-        cameraPosition.z -= 10;
-    }
-    //更新注視點紅球位置
-    sphereMesh2.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-    // scene.add(sphereMesh2);
-}
+// function increaseCameraPosition(axial) {
+//     if (axial == "cameraPositionX") {
+//         cameraPosition.x += 10;
+//     }
+//     if (axial == "cameraPositionY") {
+//         cameraPosition.y += 10;
+//     }
+//     if (axial == "cameraPositionZ") {
+//         cameraPosition.z += 10;
+//     }
+//     //更新注視點紅球位置
+//     sphereMesh2.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+//     // scene.add(sphereMesh2);
+// }
+// function decreaseCameraPosition(axial) {
+//     if (axial == "cameraPositionX") {
+//         cameraPosition.x -= 10;
+//     }
+//     if (axial == "cameraPositionY") {
+//         cameraPosition.y -= 10;
+//     }
+//     if (axial == "cameraPositionZ") {
+//         cameraPosition.z -= 10;
+//     }
+//     //更新注視點紅球位置
+//     sphereMesh2.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+//     // scene.add(sphereMesh2);
+// }
 
 
-//HTML按鈕事件 - 切換相機到指定位置
-function logCamera() {
-    console.log(camera);
-}
-function changeCameraView1() {
-    camera.position.set(1.52, 49.08, -407.62);
-    camera.rotation.set(-3.14, 0.31, 3.14);
-}
-function changeCameraView2() {
-    camera.position.set(-97.94, 55.70, -93.74);
-    camera.rotation.set(-8.023, -0.436, -3.39);
-    // camera.rotation.set(-4.66, -0.40, -1.85);
-}
+// //HTML按鈕事件 - 切換相機到指定位置
+// function logCamera() {
+//     console.log(camera);
+// }
+// function changeCameraView1() {
+//     camera.position.set(1.52, 49.08, -407.62);
+//     camera.rotation.set(-3.14, 0.31, 3.14);
+// }
+// function changeCameraView2() {
+//     camera.position.set(-97.94, 55.70, -93.74);
+//     camera.rotation.set(-8.023, -0.436, -3.39);
+//     // camera.rotation.set(-4.66, -0.40, -1.85);
+// }
 
 
-//HTML按鈕事件 - 控制相機注視的點，每按一下按鈕該軸向+10
-function ChangeCameraTarget(axial) {
-    if (axial == "cameraTargetX") {
-        cameraTargetX += 10;
-    }
-    if (axial == "cameraTargetY") {
-        cameraTargetY += 10;
-    }
-    if (axial == "cameraTargetZ") {
-        cameraTargetZ += 10;
-    }
-    controls.target.x = cameraTargetX;
-    controls.target.y = cameraTargetY;
-    controls.target.z = cameraTargetZ;
+// //HTML按鈕事件 - 控制相機注視的點，每按一下按鈕該軸向+10
+// function ChangeCameraTarget(axial) {
+//     if (axial == "cameraTargetX") {
+//         cameraTargetX += 10;
+//     }
+//     if (axial == "cameraTargetY") {
+//         cameraTargetY += 10;
+//     }
+//     if (axial == "cameraTargetZ") {
+//         cameraTargetZ += 10;
+//     }
+//     controls.target.x = cameraTargetX;
+//     controls.target.y = cameraTargetY;
+//     controls.target.z = cameraTargetZ;
 
-    //更新注視點黑球位置
-    sphereMesh.position.set(cameraTargetX, cameraTargetY, cameraTargetZ);
-    scene.add(sphereMesh);
+//     //更新注視點黑球位置
+//     sphereMesh.position.set(cameraTargetX, cameraTargetY, cameraTargetZ);
+//     scene.add(sphereMesh);
 
-    console.log(controls.target);
-    return axial;
-}
-
-
-//HTML按鈕事件 - 移除場景中最後一個新增的物件
-function removeCube() {
-    var allChildren = scene.children;
-    var lastObject = allChildren[allChildren.length - 1];
-    if (lastObject instanceof THREE.Mesh) {
-        scene.remove(lastObject);
-        this.numberOfObjects = scene.children.length;
-    }
-}
+//     console.log(controls.target);
+//     return axial;
+// }
 
 
-//變換選取到的物件的material
+// //HTML按鈕事件 - 移除場景中最後一個新增的物件
+// function removeCube() {
+//     var allChildren = scene.children;
+//     var lastObject = allChildren[allChildren.length - 1];
+//     if (lastObject instanceof THREE.Mesh) {
+//         scene.remove(lastObject);
+//         this.numberOfObjects = scene.children.length;
+//     }
+// }
 
-function materialToRed(target) {
-    var materialToRedMaterial = new THREE.MeshBasicMaterial({
-        color: 0x00ff00
-    });
-    // for( i = 0; i < target.length; i++) {
-    // 	target[i].object.material = materialToRedMaterial;
-    // }
-    target[0].object.material = materialToRedMaterial;
-    console.log("materilaToRed target = ↓");
-    console.log(target);
-}
+
+// //HTML按鈕事件 - 按鈕輸出相機log
+// function printCameraLog() {
+
+//     document.getElementById('log').innerHTML =
+//         "camera.position.x = " + camera.position.x + "<br>camera.position.y = " + camera.position.y +
+//         "<br>camera.position.z = " + camera.position.z +
+//         "<br>camera.rotation._x = " + camera.rotation._x + "<br>camera.rotation._y = " + camera.rotation._y +
+//         "<br>camera.rotation._z = " + camera.rotation._z +
+//         "<br>camera look at point x = " + cameraPosition.x + "<br>camera look at point x = " + cameraPosition.y +
+//         "<br>camera look at point x = " + cameraPosition.z;
+// }
+
+
+// //變換選取到的物件的material
+
+// function materialToRed(target) {
+//     var materialToRedMaterial = new THREE.MeshBasicMaterial({
+//         color: 0x00ff00
+//     });
+//     // for( i = 0; i < target.length; i++) {
+//     // 	target[i].object.material = materialToRedMaterial;
+//     // }
+//     target[0].object.material = materialToRedMaterial;
+//     console.log("materilaToRed target = ↓");
+//     console.log(target);
+// }
+
+// //在相機注視原始點生成黑球
+// var sphereR = 10;
+// var sphereGeo = new THREE.SphereGeometry(sphereR, sphereR, sphereR);
+// var sphereMat = new THREE.MeshLambertMaterial({
+//     // color: ff0000FF,
+//     color: 0x0000FF,
+//     wireframe: false
+// })
+// var sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
+// sphereMesh.position.set(cameraTargetX, cameraTargetY, cameraTargetZ);
+// scene.add(sphereMesh);
+
+//在相機注視點生成紅球
+// var sphereR2 = 0.01;
+// var sphereGeo2 = new THREE.SphereGeometry(sphereR2, sphereR2, sphereR2);
+// var sphereMat2 = new THREE.MeshLambertMaterial({
+//     // color: ff0000FF,
+//     color: 0xFF0000,
+//     wireframe: false
+// })
+// var sphereMesh2 = new THREE.Mesh(sphereGeo2, sphereMat2);
+// sphereMesh2.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+// scene.add(sphereMesh2);
+
+
+
+
+//console.log()
+

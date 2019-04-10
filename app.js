@@ -245,22 +245,22 @@ if (isMobile()) {
     element.addEventListener('touchmove', a, false);
     // element.addEventListener('mousemove', mouseMoveOnGroundPlayBack, false);
     function changeMouseCurrentXY(event) {
-        mouseStatusCurrentX = event.touches[0].clientX;
-        mouseStatusCurrentY = event.touches[0].clientY;
+        mouseStatusCurrentX = event.changedTouches[0].clientX;
+        mouseStatusCurrentY = event.changedTouches[0].clientY;
         console.log("changeMouseCurrentXY success");
     }
 
     function a() {
         // event.preventDefault();
-        mouse.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
+        mouse.x = (event.changedTouches[0].clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.changedTouches[0].clientY / window.innerHeight) * 2 + 1;
         console.log("a success");
     }
 
     function onDocumentMouseDown(event) {
-        event.preventDefault();
-        onPointerDownPointerX = event.touches[0].clientX;
-        onPointerDownPointerY = event.touches[0].clientY;
+        // event.preventDefault();
+        onPointerDownPointerX = event.changedTouches[0].clientX;
+        onPointerDownPointerY = event.changedTouches[0].clientY;
         onPointerDownLon = screen.lon;
         onPointerDownLat = screen.lat;
         isUserInteracting = true;
@@ -275,8 +275,8 @@ if (isMobile()) {
 
         //原始畫面移動公式
         if (isUserInteracting === true) {
-            screen.lon = (event.touches[0].clientX - onPointerDownPointerX) * moveSpeed.speed + onPointerDownLon;
-            screen.lat = (event.touches[0].clientY - onPointerDownPointerY) * moveSpeed.speed + onPointerDownLat;
+            screen.lon = (event.changedTouches[0].clientX - onPointerDownPointerX) * moveSpeed.speed + onPointerDownLon;
+            screen.lat = (event.changedTouches[0].clientY - onPointerDownPointerY) * moveSpeed.speed + onPointerDownLat;
         }
 
         // mouseCurrentX = event.clientX;
@@ -356,7 +356,7 @@ if (isMobile()) {
 
 function test() {
     console.log(event);
-    // console.log(event.touches[0].clientX);
+    // console.log(event.changedTouches[0].clientX);
 }
 
 
@@ -642,7 +642,7 @@ function mouseMoveOnGroundPlayBack() {
     // renderer.render(scene, camera);
 }
 
-
+renderer.domElement.style.overflow = "hidden";
 
 
 

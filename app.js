@@ -14,7 +14,6 @@
     - 按照滑鼠點擊位置，設定camera視線中心點的x和y
     - 計算滑鼠點擊與平面交界 (Raycaster)
     - 滑鼠點擊地面的視覺回饋
-    - 滑鼠在地面上移動視覺回饋
 - 除錯輔助工具
     - HTML按鈕
         - 按一下增加減少相機視線中心x、y、z軸10，並更新注視點紅球位置
@@ -34,9 +33,14 @@ var element = document.getElementById('demo'),
     onPointerDownLat,
     onPointerDownLon,
     fov = 70,
+<<<<<<< HEAD
     screen = {lat: 0, lon: 90},
     // lat = 0,
     // lon = 90,
+=======
+    lat = 0,
+    lon = 0,
+>>>>>>> parent of 265fdc5... 完成畫面移動後的摩擦力
     onMouseDownLon = 0,
     onMouseDownLat = 0,
     //camera注視點中心
@@ -52,6 +56,7 @@ var element = document.getElementById('demo'),
     sphere,
     spheres = [],
     spheresIndex = 0;
+<<<<<<< HEAD
 //畫面摩擦力
 var prevLon = screen.lon,
     // prevLon = lon,
@@ -62,26 +67,19 @@ var prevLon = screen.lon,
     dampingFactor = 0.2,
     // dampingFactor = 0.05,
     then = Date.now();
+=======
+>>>>>>> parent of 265fdc5... 完成畫面移動後的摩擦力
 //未分類的變數
 var raycaster = new THREE.Raycaster();
 var sky, sunSphere;
 var scene = new THREE.Scene();
-var isUserInteracting = false;
-var moveSpeed = {
-    speed: -0.07
-    // speed: -0.175
-    // speed: -0.05
-};
 
 
 
 //設定WebGL Render
 //下下行有抗鋸齒
-var renderer = new THREE.WebGLRenderer();
-// var renderer = new THREE.WebGLRenderer({
-//     antialias: true,
-//     alpha: true
-// });
+// var renderer = new THREE.WebGLRenderer();
+var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -194,6 +192,7 @@ function onDocumentMouseDown(event) {
     element.addEventListener('mouseup', onDocumentMouseUp, false);
 }
 
+<<<<<<< HEAD
 
 
 
@@ -403,10 +402,14 @@ function onDocumentMouseMove(event) {
 
     // lon = (event.clientX - onPointerDownPointerX) * -0.175 + onPointerDownLon;
     // lat = (event.clientY - onPointerDownPointerY) * -0.175 + onPointerDownLat;
+=======
+function onDocumentMouseMove(event) {
+    lon = (event.clientX - onPointerDownPointerX) * -0.175 + onPointerDownLon;
+    lat = (event.clientY - onPointerDownPointerY) * -0.175 + onPointerDownLat;
+>>>>>>> parent of 265fdc5... 完成畫面移動後的摩擦力
 }
 
 function onDocumentMouseUp(event) {
-    // moveSpeed.speed = -0.175;
     isUserInteracting = false;
     element.removeEventListener('mousemove', onDocumentMouseMove, false);
     element.removeEventListener('mouseup', onDocumentMouseUp, false);
@@ -476,11 +479,14 @@ function render() {
 //主動畫animate()
 function animate() {
     requestAnimationFrame(animate);
+<<<<<<< HEAD
     // controls.update();
     updateScreenMove();
     updateFriction();
+=======
+    controls.update();
+>>>>>>> parent of 265fdc5... 完成畫面移動後的摩擦力
     render();
-    // isMouseMoving();
     // mouseMoveOnGroundPlayBack();
     // moveMouseGroundPlayBack(event);
     // if(sphereMesh2){} else {
@@ -505,6 +511,7 @@ function setCameraPositionByClickXY(positionVector) {
 
 
 //計算滑鼠點擊與平面交界 (Raycaster)
+
 var mouse = new THREE.Vector2();
 
 function scanMouseProjectToObject(event) {
@@ -516,12 +523,9 @@ function scanMouseProjectToObject(event) {
     //更新raycaster
     raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObjects(scene.children[5].children);
-    if (intersects[0].object.name == "Box003") {
-        setCameraPositionByClickXY(intersects[0].point);
-    } else {
-        // console.log("no")
-    };
-    // console.log(intersects[0].point);
+
+    setCameraPositionByClickXY(intersects[0].point);
+    console.log(intersects[0].point);
     // clickGroundPlayBack(intersects[0].point);
 }
 window.addEventListener('click', scanMouseProjectToObject, false);
@@ -530,14 +534,13 @@ window.addEventListener('click', scanMouseProjectToObject, false);
 
 //滑鼠在地面上移動視覺回饋
 element.addEventListener('mousemove', a, false);
-
 function a() {
     event.preventDefault();
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 }
 
-var geometryMoMo = new THREE.CylinderGeometry(15, 15, 1, 45);
+var geometryMoMo = new THREE.CylinderGeometry(15, 15, 1);
 // var geometryMoMo = new THREE.SphereBufferGeometry(5);
 var materialMoMo = new THREE.MeshBasicMaterial({
     color: 0xffffff
@@ -548,15 +551,17 @@ sphereInter.visible = false;
 scene.add(sphereInter);
 sphereInter.material.transparent = true;
 sphereInter.material.opacity = 0.7;
+<<<<<<< HEAD
 
+=======
+console.log(sphereInter.material.opacity);
+>>>>>>> parent of 265fdc5... 完成畫面移動後的摩擦力
 function mouseMoveOnGroundPlayBack() {
     raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObjects(scene.children[5].children, true);
-
-    if (intersects.length > 0 && intersects[0].object.name == "Box003") {
+    if (intersects.length > 0) {
         sphereInter.visible = true;
         sphereInter.position.copy(intersects[0].point);
-        // console.log(intersects[0].object.name);
     } else {
         sphereInter.visible = false;
     }

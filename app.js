@@ -7,10 +7,13 @@
 - 讀取FBX模型
 - 加入場景背景 (CubeMap)
 - 滑鼠事件監聽器               [複製自view-360-panarama]
+    - 基本滑鼠動作
+    - Is mouse moving? (檢測滑鼠是否正在移動及移動速度)
 - 視窗大小調整事件監聽器        [複製自view-360-panarama]
 - 主要相機控制模組
     - 渲染器                  [複製自view-360-panarama]
     - 主動畫animate()         [複製自view-360-panarama]
+    - 畫面摩擦力 (Friction)
     - 按照滑鼠點擊位置，設定camera視線中心點的x和y
     - 計算滑鼠點擊與平面交界 (Raycaster)
     - 滑鼠點擊地面的視覺回饋
@@ -34,7 +37,10 @@ var element = document.getElementById('demo'),
     onPointerDownLat,
     onPointerDownLon,
     fov = 70,
-    screen = {lat: 0, lon: 90},
+    screen = {
+        lat: 1.34,
+        lon: 231.51
+    },
     // lat = 0,
     // lon = 90,
     onMouseDownLon = 0,
@@ -44,9 +50,9 @@ var element = document.getElementById('demo'),
     // height = window.innerHeight,
     // ratio = width / height,
     cameraPosition = {
-        x: 0,
+        x: -149,
         y: 54,
-        z: -170
+        z: -416
     },
     toggle = 0,
     sphere,
@@ -60,6 +66,15 @@ var prevLon = screen.lon,
     dampingFactor = 0.2,
     // dampingFactor = 0.05,
     then = Date.now();
+//Is mouse moving
+var mouseStatusArray = [];
+var mouseStatusCurrentX = 0,
+    mouseStatusCurrentY = 0,
+    mouseMoving = false,
+    thisMouseTime,
+    mouseMoveDistance = 0,
+    mouseMoveDuration = 0,
+    mouseMoveSpeed = 0;
 //未分類的變數
 var raycaster = new THREE.Raycaster();
 var sky, sunSphere;
@@ -195,186 +210,6 @@ function onDocumentMouseDown(event) {
 
 
 
-//畫面摩擦力 Start
-function updateFriction() {
-
-    // Get time since last frame
-    var now = Date.now();
-    var dT = now - then;
-
-    if (isUserInteracting) {
-        // Get distance travelled since last frame
-        var dLon = screen.lon - prevLon;
-        var dLat = screen.lat - prevLat;
-        // velocity = distance / time
-        lonVelocity = dLon / dT;
-        latVelocity = dLat / dT;
-    } else {
-        // old position + ( velocity * time ) = new position
-        screen.lon += lonVelocity * dT;
-        screen.lat += latVelocity * dT;
-        lonVelocity *= (1 - dampingFactor);
-        latVelocity *= (1 - dampingFactor);
-    }
-    // if (isUserInteracting) {
-    //     var dLon = lon - prevLon;
-    //     var dLat = lat - prevLat;
-
-    //     lonVelocity = dLon / dT;
-    //     latVelocity = dLat / dT;
-    // } else {
-    //     lon += lonVelocity * dT;
-    //     lat += latVelocity * dT;
-    //     lonVelocity *= (1 - dampingFactor);
-    //     latVelocity *= (1 - dampingFactor);
-    // }
-
-    // Save these for next frame
-    then = now;
-    prevLon = screen.lon;
-    prevLat = screen.lat;
-
-}
-//畫面摩擦力 End
-
-
-
-
-
-
-
-
-
-// //增加/減少畫面移動速度
-// //當按住畫面時，開始不斷監聽滑鼠是否正在移動，若正在移動則將畫面移動速度提升，反之降低
-// setInterval(() => {
-
-//     //當滑鼠按住畫面時，開始調整畫面移動速度
-//     if (isUserInteracting) {
-
-//         //mouseStatusArray有三筆以上資料，才執行判斷滑鼠移動狀態邏輯
-//         if (mouseStatusArray.length >= 1) {
-
-//             //如果滑鼠移動狀態有改變，才判斷滑鼠是否正在移動
-//             if (mouseStatusArray[2].moving !== mouseStatusArray[1].moving) {
-
-//                 //判斷滑鼠是否正在移動
-//                 if (mouseStatusArray[2].moving) {
-//                     createjs.Tween.get(moveSpeed).to({
-//                         speed: -0.035
-//                     }, 500);
-//                 } else {
-//                     createjs.Tween.get(moveSpeed).to({
-//                         speed: -0.005
-//                     }, 500);
-//                 }
-//             }
-//         }
-//     }
-
-//     console.log(moveSpeed.speed);
-
-// }, 500);
-
-
-
-// //Is mouse moving?
-// var mouseStatusArray = [];
-// var mouseStatusCurrentX = 0,
-//     mouseStatusCurrentY = 0,
-//     mouseMoving = false,
-//     thisMouseTime;
-// element.addEventListener('mousemove', changeMouseCurrentXY, false);
-
-// function saveMouseStatusToArray() {
-//     //得到最新的滑鼠位置，存在mouseStatus中
-//     // changeMouseCurrentXY();
-
-//     //替最新的滑鼠位置加入時間戳記，存在mouseStatus中
-//     var now = Date.now();
-//     thisMouseTime = now;
-
-//     //將最新的mouseStatus加入mouseStatusArray陣列中
-//     latestMouseStatus = new mouseStatus(mouseStatusCurrentX, mouseStatusCurrentY, mouseMoving, thisMouseTime);
-//     mouseStatusArray.push(latestMouseStatus);
-// }
-
-// function mouseStatus(currentX, currentY, moving, time) {
-//     this.currentX = currentX;
-//     this.currentY = currentY;
-//     this.moving = moving;
-//     this.time = time;
-// }
-
-// setInterval(() => {
-//     //確保mouseStatusArray陣列只有最新的兩個元素
-//     if (mouseStatusArray.length >= 3) {
-//         mouseStatusArray.shift();
-//     }
-
-//     //若mouseStatusArray有兩筆以上資料，計算滑鼠是否移動
-//     if (mouseStatusArray.length >= 2) {
-//         isMouseMoving();
-//     }
-
-//     saveMouseStatusToArray();
-//     if (mouseStatusArray.length >= 3) {
-//         // console.log(mouseStatusArray[2].moving);
-//     }
-
-// }, 100);
-
-// function isMouseMoving() {
-//     if (mouseStatusArray[0].currentX !== mouseStatusArray[1].currentX && mouseStatusArray[0].currentY !== mouseStatusArray[1].currentY) {
-//         mouseMoving = true;
-//     } else {
-//         mouseMoving = false;
-//     }
-// }
-
-// function changeMouseCurrentXY(event) {
-//     mouseStatusCurrentX = event.clientX;
-//     mouseStatusCurrentY = event.clientY;
-// }
-// //Is mouse moving? END
-// //增加/減少畫面移動速度 END
-
-
-
-//畫面平移 Start
-// var mouseCurrentX = 0, mouseCurrentY = 0;
-
-// element.addEventListener('mousemove', renewMouseClientXY,false);
-
-// function renewMouseClientXY() {
-//     mouseCurrentX = event.clientX;
-//     mouseCurrentY = event.clientY;
-// }
-
-// var lastLon = lon, lastLat = lat;
-// setInterval(() => {
-//     if (isUserInteracting === true) {
-//         lastLon = lon;
-//         lastLat = lat;
-//         newLon = (mouseCurrentX - onPointerDownPointerX) * moveSpeed.speed + onPointerDownLon;
-//         newLat = (mouseCurrentY - onPointerDownPointerY) * moveSpeed.speed + onPointerDownLat;
-//         createjs.Tween.get(lon).to({
-//             this: newLon
-//         }, 1000);
-//         createjs.Tween.get(lat).to({
-//             this: newLat
-//         }, 1000);
-//     }
-// }, 100);
-
-// function log() {
-//     console.log(lastLon);
-//     console.log(lastLat);
-//     console.log(lon);
-//     console.log(lat);
-// }
-//畫面平移 End
-
 
 
 function onDocumentMouseMove(event) {
@@ -421,6 +256,71 @@ function onDocumentMouseWheel(event) {
 
 
 
+//Is mouse moving?
+element.addEventListener('mousemove', changeMouseCurrentXY, false);
+
+function saveMouseStatusToArray() {
+    //得到最新的滑鼠位置，存在mouseStatus中
+    // changeMouseCurrentXY();
+
+    //替最新的滑鼠位置加入時間戳記，存在mouseStatus中
+    var now = Date.now();
+    thisMouseTime = now;
+
+    //將最新的mouseStatus加入mouseStatusArray陣列中
+    latestMouseStatus = new mouseStatus(mouseStatusCurrentX, mouseStatusCurrentY, mouseMoving, thisMouseTime, mouseMoveDistance, mouseMoveDuration, mouseMoveSpeed);
+    mouseStatusArray.push(latestMouseStatus);
+}
+
+function mouseStatus(currentX, currentY, moving, time, moveDistance, mouseMoveDuration, mouseMoveSpeed) {
+    this.currentX = currentX;
+    this.currentY = currentY;
+    this.moving = moving;
+    this.time = time;
+    this.moveDistance = moveDistance;
+    this.mouseMoveDuration = mouseMoveDuration;
+    this.mouseMoveSpeed = mouseMoveSpeed;
+}
+
+setInterval(isMouseMoving, 1000);
+
+function isMouseMoving() {
+    //確保mouseStatusArray陣列只有最新的兩個元素
+    if (mouseStatusArray.length >= 3) {
+        mouseStatusArray.shift();
+    }
+
+    //若mouseStatusArray有兩筆以上資料，計算滑鼠是否移動，並計算移動距離、耗時、速度
+    if (mouseStatusArray.length >= 2) {
+        //計算滑鼠是否移動
+        if (mouseStatusArray[0].currentX !== mouseStatusArray[1].currentX && mouseStatusArray[0].currentY !== mouseStatusArray[1].currentY) {
+            mouseMoving = true;
+            //計算移動距離、耗時、速度
+            mouseMoveDistance = Math.sqrt((mouseStatusArray[1].currentX - mouseStatusArray[0].currentX) ^ 2 + (mouseStatusArray[1].currentY - mouseStatusArray[0].currentY) ^ 2);
+            mouseMoveDuration = (mouseStatusArray[1].time - mouseStatusArray[0].time);
+            mouseMoveSpeed = mouseMoveDistance / mouseMoveDuration;
+        } else {
+            mouseMoving = false;
+        }
+    }
+
+    saveMouseStatusToArray();
+    if (mouseStatusArray.length >= 3) {
+        // console.log(mouseStatusArray[2].moving);
+    }
+
+    console.log(mouseStatusArray[2].mouseMoveSpeed * 100);
+    // console.log(mouseStatus.moveSpeed);
+}
+
+function changeMouseCurrentXY(event) {
+    mouseStatusCurrentX = event.clientX;
+    mouseStatusCurrentY = event.clientY;
+}
+//Is mouse moving? END
+
+
+
 //視窗大小調整事件監聽器 [複製自view-360-panarama]
 window.addEventListener('resize', onWindowResized, false);
 
@@ -464,6 +364,7 @@ function render() {
 function animate() {
     requestAnimationFrame(animate);
     // controls.update();
+    // console.log(mouseMoving);
     updateFriction();
     render();
     // isMouseMoving();
@@ -475,6 +376,50 @@ function animate() {
     // printCameraLog();
 }
 animate();
+
+
+
+//畫面摩擦力 Start
+function updateFriction() {
+
+    // Get time since last frame
+    var now = Date.now();
+    var dT = now - then;
+
+    if (isUserInteracting) {
+        // Get distance travelled since last frame
+        var dLon = screen.lon - prevLon;
+        var dLat = screen.lat - prevLat;
+        // velocity = distance / time
+        lonVelocity = dLon / dT;
+        latVelocity = dLat / dT;
+    } else {
+        // old position + ( velocity * time ) = new position
+        screen.lon += lonVelocity * dT;
+        screen.lat += latVelocity * dT;
+        lonVelocity *= (1 - dampingFactor);
+        latVelocity *= (1 - dampingFactor);
+    }
+    // if (isUserInteracting) {
+    //     var dLon = lon - prevLon;
+    //     var dLat = lat - prevLat;
+
+    //     lonVelocity = dLon / dT;
+    //     latVelocity = dLat / dT;
+    // } else {
+    //     lon += lonVelocity * dT;
+    //     lat += latVelocity * dT;
+    //     lonVelocity *= (1 - dampingFactor);
+    //     latVelocity *= (1 - dampingFactor);
+    // }
+
+    // Save these for next frame
+    then = now;
+    prevLon = screen.lon;
+    prevLat = screen.lat;
+
+}
+//畫面摩擦力 End
 
 
 
@@ -523,7 +468,7 @@ function a() {
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 }
 
-var geometryMoMo = new THREE.CylinderGeometry(15, 15, 1, 45);
+var geometryMoMo = new THREE.CylinderGeometry(12, 12, 1, 45);
 // var geometryMoMo = new THREE.SphereBufferGeometry(5);
 var materialMoMo = new THREE.MeshBasicMaterial({
     color: 0xffffff
@@ -531,10 +476,12 @@ var materialMoMo = new THREE.MeshBasicMaterial({
 
 sphereInter = new THREE.Mesh(geometryMoMo, materialMoMo);
 sphereInter.visible = false;
-scene.add(sphereInter);
 sphereInter.material.transparent = true;
-sphereInter.material.opacity = 0.7;
-console.log(sphereInter.material.opacity);
+sphereInter.material.opacity = 0.1;
+sphereInter.material.blending = THREE.AdditiveBlending;
+scene.add(sphereInter);
+// console.log(sphereInter.material);
+// console.log(THREE.AdditiveBlending);
 
 function mouseMoveOnGroundPlayBack() {
     raycaster.setFromCamera(mouse, camera);
@@ -543,9 +490,11 @@ function mouseMoveOnGroundPlayBack() {
     if (intersects.length > 0 && intersects[0].object.name == "Box003") {
         sphereInter.visible = true;
         sphereInter.position.copy(intersects[0].point);
+        renderer.domElement.style.cursor = "pointer";
         // console.log(intersects[0].object.name);
     } else {
         sphereInter.visible = false;
+        renderer.domElement.style.cursor = "";
     }
     // renderer.render(scene, camera);
 }
@@ -781,3 +730,82 @@ element.addEventListener('mousemove', mouseMoveOnGroundPlayBack, false);
 // var sphereMesh2 = new THREE.Mesh(sphereGeo2, sphereMat2);
 // sphereMesh2.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 // scene.add(sphereMesh2);
+
+// //增加/減少畫面移動速度
+// //當按住畫面時，開始不斷監聽滑鼠是否正在移動，若正在移動則將畫面移動速度提升，反之降低
+// setInterval(() => {
+
+//     //當滑鼠按住畫面時，開始調整畫面移動速度
+//     if (isUserInteracting) {
+
+//         //mouseStatusArray有三筆以上資料，才執行判斷滑鼠移動狀態邏輯
+//         if (mouseStatusArray.length >= 1) {
+
+//             //如果滑鼠移動狀態有改變，才判斷滑鼠是否正在移動
+//             if (mouseStatusArray[2].moving !== mouseStatusArray[1].moving) {
+
+//                 //判斷滑鼠是否正在移動
+//                 if (mouseStatusArray[2].moving) {
+//                     createjs.Tween.get(moveSpeed).to({
+//                         speed: -0.035
+//                     }, 500);
+//                 } else {
+//                     createjs.Tween.get(moveSpeed).to({
+//                         speed: -0.005
+//                     }, 500);
+//                 }
+//             }
+//         }
+//     }
+
+//     console.log(moveSpeed.speed);
+
+// }, 500);
+
+
+//計算滑鼠移動速度 START
+
+// var mouseMoveDistance = Math.sqrt((mouseStatusArray[1].currentX - mouseStatusArray[0].currentX)^2 + (mouseStatusArray[1].currentY - mouseStatusArray[0].currentY)^2);
+// var mouseMoveDuration = (mouseStatusArray[1].time - mouseStatusArray[0].time);
+// var mouseMoveSpeed = mouseMoveDistance / mouseMoveDuration;
+
+//計算滑鼠移動速度 END
+
+
+
+
+
+// //增加/減少畫面移動速度 END
+//畫面平移 Start
+// var mouseCurrentX = 0, mouseCurrentY = 0;
+
+// element.addEventListener('mousemove', renewMouseClientXY,false);
+
+// function renewMouseClientXY() {
+//     mouseCurrentX = event.clientX;
+//     mouseCurrentY = event.clientY;
+// }
+
+// var lastLon = lon, lastLat = lat;
+// setInterval(() => {
+//     if (isUserInteracting === true) {
+//         lastLon = lon;
+//         lastLat = lat;
+//         newLon = (mouseCurrentX - onPointerDownPointerX) * moveSpeed.speed + onPointerDownLon;
+//         newLat = (mouseCurrentY - onPointerDownPointerY) * moveSpeed.speed + onPointerDownLat;
+//         createjs.Tween.get(lon).to({
+//             this: newLon
+//         }, 1000);
+//         createjs.Tween.get(lat).to({
+//             this: newLat
+//         }, 1000);
+//     }
+// }, 100);
+
+// function log() {
+//     console.log(lastLon);
+//     console.log(lastLat);
+//     console.log(lon);
+//     console.log(lat);
+// }
+//畫面平移 End

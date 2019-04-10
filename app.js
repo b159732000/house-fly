@@ -34,8 +34,9 @@ var element = document.getElementById('demo'),
     onPointerDownLat,
     onPointerDownLon,
     fov = 70,
-    lat = 0,
-    lon = 90,
+    screen = {lat: 0, lon: 90},
+    // lat = 0,
+    // lon = 90,
     onMouseDownLon = 0,
     onMouseDownLat = 0,
     //camera注視點中心
@@ -52,8 +53,10 @@ var element = document.getElementById('demo'),
     spheres = [],
     spheresIndex = 0;
 //畫面摩擦力
-var prevLon = lon,
-    prevLat = lat,
+var prevLon = screen.lon,
+    // prevLon = lon,
+    prevLat = screen.lat,
+    // prevLat = lat,
     lonVelocity = 0,
     latVelocity = 0,
     dampingFactor = 0.2,
@@ -182,8 +185,10 @@ function onDocumentMouseDown(event) {
     event.preventDefault();
     onPointerDownPointerX = event.clientX;
     onPointerDownPointerY = event.clientY;
-    onPointerDownLon = lon;
-    onPointerDownLat = lat;
+    onPointerDownLon = screen.lon;
+    onPointerDownLat = screen.lat;
+    // onPointerDownLon = lon;
+    // onPointerDownLat = lat;
     isUserInteracting = true;
     element.addEventListener('mousemove', onDocumentMouseMove, false);
     element.addEventListener('mouseup', onDocumentMouseUp, false);
@@ -203,15 +208,19 @@ function updateFriction() {
 
     if (isUserInteracting) {
         // Get distance travelled since last frame
-        var dLon = lon - prevLon;
-        var dLat = lat - prevLat;
-        // velocity = distance / time
+        var dLon = screen.lon - prevLon;
+        var dLat = screen.lat - prevLat;
+        // var dLon = lon - prevLon;
+        // var dLat = lat - prevLat;
+        velocity = distance / time
         lonVelocity = dLon / dT;
         latVelocity = dLat / dT;
     } else {
         // old position + ( velocity * time ) = new position
-        lon += lonVelocity * dT;
-        lat += latVelocity * dT;
+        // screen.lon += lonVelocity * dT;
+        // screen.lat += latVelocity * dT;
+        // lon += lonVelocity * dT;
+        // lat += latVelocity * dT;
         lonVelocity *= (1 - dampingFactor);
         latVelocity *= (1 - dampingFactor);
     }
@@ -230,8 +239,10 @@ function updateFriction() {
 
     // Save these for next frame
     then = now;
-    prevLon = lon;
-    prevLat = lat;
+    prevLon = screen.lon;
+    prevLat = screen.lat;
+    // prevLon = lon;
+    // prevLat = lat;
 
 }
 //畫面摩擦力 End
@@ -341,39 +352,37 @@ function updateFriction() {
 
 
 //畫面平移 Start
-// var mouseCurrentX = 0, mouseCurrentY = 0;
+var mouseCurrentX = 0, mouseCurrentY = 0;
 
-// element.addEventListener('mousemove', renewMouseClientXY,false);
+element.addEventListener('mousemove', renewMouseClientXY,false);
 
-// function renewMouseClientXY() {
-//     mouseCurrentX = event.clientX;
-//     mouseCurrentY = event.clientY;
-// }
+function renewMouseClientXY() {
+    mouseCurrentX = event.clientX;
+    mouseCurrentY = event.clientY;
+}
 
-// var lastLon = lon, lastLat = lat;
-// setInterval(() => {
-//     if (isUserInteracting === true) {
-//         lastLon = lon;
-//         lastLat = lat;
-//         newLon = (mouseCurrentX - onPointerDownPointerX) * moveSpeed.speed + onPointerDownLon;
-//         newLat = (mouseCurrentY - onPointerDownPointerY) * moveSpeed.speed + onPointerDownLat;
-//         createjs.Tween.get(lon).to({
-//             this: newLon
-//         }, 1000);
-//         createjs.Tween.get(lat).to({
-//             this: newLat
-//         }, 1000);
-//     }
-// }, 100);
-
-// function log() {
-//     console.log(lastLon);
-//     console.log(lastLat);
-//     console.log(lon);
-//     console.log(lat);
-// }
+var lastLon = screen.lon, lastLat = screen.lat;
+function updateScreenMove() {
+    if (isUserInteracting === true) {
+        lastLon = screen.lon;
+        lastLat = screen.lat;
+        newLon = (mouseCurrentX - onPointerDownPointerX) * moveSpeed.speed + onPointerDownLon;
+        newLat = (mouseCurrentY - onPointerDownPointerY) * moveSpeed.speed + onPointerDownLat;
+        createjs.Tween.get(screen).to({
+            lon: newLon
+        }, 1000);
+        createjs.Tween.get(screen).to({
+            lat: newLat
+        }, 1000);
+    }
+};
+function log() {
+    console.log(lastLon);
+    console.log(lastLat);
+    console.log(screen.lon);
+    console.log(screen.lat);
+}
 //畫面平移 End
-
 
 
 function onDocumentMouseMove(event) {
@@ -381,10 +390,12 @@ function onDocumentMouseMove(event) {
     //     speed: -0.075
     // }, 500);
 
-    //原始畫面移動公式
+    //原始畫面移動公式 (使用方法:把畫面平移整段註解掉，將原始畫面移動公式還原註解即可)
     if (isUserInteracting === true) {
-        lon = (event.clientX - onPointerDownPointerX) * moveSpeed.speed + onPointerDownLon;
-        lat = (event.clientY - onPointerDownPointerY) * moveSpeed.speed + onPointerDownLat;
+        // screen.lon = (event.clientX - onPointerDownPointerX) * moveSpeed.speed + onPointerDownLon;
+        // screen.lat = (event.clientY - onPointerDownPointerY) * moveSpeed.speed + onPointerDownLat;
+        // lon = (event.clientX - onPointerDownPointerX) * moveSpeed.speed + onPointerDownLon;
+        // lat = (event.clientY - onPointerDownPointerY) * moveSpeed.speed + onPointerDownLat;
     }
 
     // mouseCurrentX = event.clientX;
@@ -435,9 +446,12 @@ function onWindowResized(event) {
 //主要相機控制模組
 //渲染器 [複製自view-360-panarama]
 function render() {
-    lat = Math.max(-85, Math.min(85, lat));
-    phi = THREE.Math.degToRad(90 - lat);
-    theta = THREE.Math.degToRad(lon);
+    screen.lat = Math.max(-85, Math.min(85, screen.lat));
+    phi = THREE.Math.degToRad(90 - screen.lat);
+    theta = THREE.Math.degToRad(screen.lon);
+    // lat = Math.max(-85, Math.min(85, lat));
+    // phi = THREE.Math.degToRad(90 - lat);
+    // theta = THREE.Math.degToRad(lon);
     // camera.position.x = 1 * Math.sin(phi) * Math.cos(theta);
     // camera.position.y = 1 * Math.cos(phi);
     // camera.position.z = 1 * Math.sin(phi) * Math.sin(theta);
@@ -463,6 +477,7 @@ function render() {
 function animate() {
     requestAnimationFrame(animate);
     // controls.update();
+    updateScreenMove();
     updateFriction();
     render();
     // isMouseMoving();
@@ -533,7 +548,6 @@ sphereInter.visible = false;
 scene.add(sphereInter);
 sphereInter.material.transparent = true;
 sphereInter.material.opacity = 0.7;
-console.log(sphereInter.material.opacity);
 
 function mouseMoveOnGroundPlayBack() {
     raycaster.setFromCamera(mouse, camera);

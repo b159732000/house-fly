@@ -33,14 +33,8 @@ var element = document.getElementById('demo'),
     onPointerDownLat,
     onPointerDownLon,
     fov = 70,
-<<<<<<< HEAD
-    screen = {lat: 0, lon: 90},
-    // lat = 0,
-    // lon = 90,
-=======
     lat = 0,
     lon = 0,
->>>>>>> parent of 265fdc5... 完成畫面移動後的摩擦力
     onMouseDownLon = 0,
     onMouseDownLat = 0,
     //camera注視點中心
@@ -56,19 +50,6 @@ var element = document.getElementById('demo'),
     sphere,
     spheres = [],
     spheresIndex = 0;
-<<<<<<< HEAD
-//畫面摩擦力
-var prevLon = screen.lon,
-    // prevLon = lon,
-    prevLat = screen.lat,
-    // prevLat = lat,
-    lonVelocity = 0,
-    latVelocity = 0,
-    dampingFactor = 0.2,
-    // dampingFactor = 0.05,
-    then = Date.now();
-=======
->>>>>>> parent of 265fdc5... 完成畫面移動後的摩擦力
 //未分類的變數
 var raycaster = new THREE.Raycaster();
 var sky, sunSphere;
@@ -192,221 +173,9 @@ function onDocumentMouseDown(event) {
     element.addEventListener('mouseup', onDocumentMouseUp, false);
 }
 
-<<<<<<< HEAD
-
-
-
-
-
-//畫面摩擦力 Start
-function updateFriction() {
-
-    // Get time since last frame
-    var now = Date.now();
-    var dT = now - then;
-
-    if (isUserInteracting) {
-        // Get distance travelled since last frame
-        var dLon = screen.lon - prevLon;
-        var dLat = screen.lat - prevLat;
-        // var dLon = lon - prevLon;
-        // var dLat = lat - prevLat;
-        velocity = distance / time
-        lonVelocity = dLon / dT;
-        latVelocity = dLat / dT;
-    } else {
-        // old position + ( velocity * time ) = new position
-        // screen.lon += lonVelocity * dT;
-        // screen.lat += latVelocity * dT;
-        // lon += lonVelocity * dT;
-        // lat += latVelocity * dT;
-        lonVelocity *= (1 - dampingFactor);
-        latVelocity *= (1 - dampingFactor);
-    }
-    // if (isUserInteracting) {
-    //     var dLon = lon - prevLon;
-    //     var dLat = lat - prevLat;
-
-    //     lonVelocity = dLon / dT;
-    //     latVelocity = dLat / dT;
-    // } else {
-    //     lon += lonVelocity * dT;
-    //     lat += latVelocity * dT;
-    //     lonVelocity *= (1 - dampingFactor);
-    //     latVelocity *= (1 - dampingFactor);
-    // }
-
-    // Save these for next frame
-    then = now;
-    prevLon = screen.lon;
-    prevLat = screen.lat;
-    // prevLon = lon;
-    // prevLat = lat;
-
-}
-//畫面摩擦力 End
-
-
-
-
-
-
-
-
-
-// //增加/減少畫面移動速度
-// //當按住畫面時，開始不斷監聽滑鼠是否正在移動，若正在移動則將畫面移動速度提升，反之降低
-// setInterval(() => {
-
-//     //當滑鼠按住畫面時，開始調整畫面移動速度
-//     if (isUserInteracting) {
-
-//         //mouseStatusArray有三筆以上資料，才執行判斷滑鼠移動狀態邏輯
-//         if (mouseStatusArray.length >= 1) {
-
-//             //如果滑鼠移動狀態有改變，才判斷滑鼠是否正在移動
-//             if (mouseStatusArray[2].moving !== mouseStatusArray[1].moving) {
-
-//                 //判斷滑鼠是否正在移動
-//                 if (mouseStatusArray[2].moving) {
-//                     createjs.Tween.get(moveSpeed).to({
-//                         speed: -0.035
-//                     }, 500);
-//                 } else {
-//                     createjs.Tween.get(moveSpeed).to({
-//                         speed: -0.005
-//                     }, 500);
-//                 }
-//             }
-//         }
-//     }
-
-//     console.log(moveSpeed.speed);
-
-// }, 500);
-
-
-
-// //Is mouse moving?
-// var mouseStatusArray = [];
-// var mouseStatusCurrentX = 0,
-//     mouseStatusCurrentY = 0,
-//     mouseMoving = false,
-//     thisMouseTime;
-// element.addEventListener('mousemove', changeMouseCurrentXY, false);
-
-// function saveMouseStatusToArray() {
-//     //得到最新的滑鼠位置，存在mouseStatus中
-//     // changeMouseCurrentXY();
-
-//     //替最新的滑鼠位置加入時間戳記，存在mouseStatus中
-//     var now = Date.now();
-//     thisMouseTime = now;
-
-//     //將最新的mouseStatus加入mouseStatusArray陣列中
-//     latestMouseStatus = new mouseStatus(mouseStatusCurrentX, mouseStatusCurrentY, mouseMoving, thisMouseTime);
-//     mouseStatusArray.push(latestMouseStatus);
-// }
-
-// function mouseStatus(currentX, currentY, moving, time) {
-//     this.currentX = currentX;
-//     this.currentY = currentY;
-//     this.moving = moving;
-//     this.time = time;
-// }
-
-// setInterval(() => {
-//     //確保mouseStatusArray陣列只有最新的兩個元素
-//     if (mouseStatusArray.length >= 3) {
-//         mouseStatusArray.shift();
-//     }
-
-//     //若mouseStatusArray有兩筆以上資料，計算滑鼠是否移動
-//     if (mouseStatusArray.length >= 2) {
-//         isMouseMoving();
-//     }
-
-//     saveMouseStatusToArray();
-//     if (mouseStatusArray.length >= 3) {
-//         // console.log(mouseStatusArray[2].moving);
-//     }
-
-// }, 100);
-
-// function isMouseMoving() {
-//     if (mouseStatusArray[0].currentX !== mouseStatusArray[1].currentX && mouseStatusArray[0].currentY !== mouseStatusArray[1].currentY) {
-//         mouseMoving = true;
-//     } else {
-//         mouseMoving = false;
-//     }
-// }
-
-// function changeMouseCurrentXY(event) {
-//     mouseStatusCurrentX = event.clientX;
-//     mouseStatusCurrentY = event.clientY;
-// }
-// //Is mouse moving? END
-// //增加/減少畫面移動速度 END
-
-
-
-//畫面平移 Start
-var mouseCurrentX = 0, mouseCurrentY = 0;
-
-element.addEventListener('mousemove', renewMouseClientXY,false);
-
-function renewMouseClientXY() {
-    mouseCurrentX = event.clientX;
-    mouseCurrentY = event.clientY;
-}
-
-var lastLon = screen.lon, lastLat = screen.lat;
-function updateScreenMove() {
-    if (isUserInteracting === true) {
-        lastLon = screen.lon;
-        lastLat = screen.lat;
-        newLon = (mouseCurrentX - onPointerDownPointerX) * moveSpeed.speed + onPointerDownLon;
-        newLat = (mouseCurrentY - onPointerDownPointerY) * moveSpeed.speed + onPointerDownLat;
-        createjs.Tween.get(screen).to({
-            lon: newLon
-        }, 1000);
-        createjs.Tween.get(screen).to({
-            lat: newLat
-        }, 1000);
-    }
-};
-function log() {
-    console.log(lastLon);
-    console.log(lastLat);
-    console.log(screen.lon);
-    console.log(screen.lat);
-}
-//畫面平移 End
-
-
-function onDocumentMouseMove(event) {
-    // createjs.Tween.get(moveSpeed).to({
-    //     speed: -0.075
-    // }, 500);
-
-    //原始畫面移動公式 (使用方法:把畫面平移整段註解掉，將原始畫面移動公式還原註解即可)
-    if (isUserInteracting === true) {
-        // screen.lon = (event.clientX - onPointerDownPointerX) * moveSpeed.speed + onPointerDownLon;
-        // screen.lat = (event.clientY - onPointerDownPointerY) * moveSpeed.speed + onPointerDownLat;
-        // lon = (event.clientX - onPointerDownPointerX) * moveSpeed.speed + onPointerDownLon;
-        // lat = (event.clientY - onPointerDownPointerY) * moveSpeed.speed + onPointerDownLat;
-    }
-
-    // mouseCurrentX = event.clientX;
-    // mouseCurrentY = event.clientY;
-
-    // lon = (event.clientX - onPointerDownPointerX) * -0.175 + onPointerDownLon;
-    // lat = (event.clientY - onPointerDownPointerY) * -0.175 + onPointerDownLat;
-=======
 function onDocumentMouseMove(event) {
     lon = (event.clientX - onPointerDownPointerX) * -0.175 + onPointerDownLon;
     lat = (event.clientY - onPointerDownPointerY) * -0.175 + onPointerDownLat;
->>>>>>> parent of 265fdc5... 完成畫面移動後的摩擦力
 }
 
 function onDocumentMouseUp(event) {
@@ -479,13 +248,7 @@ function render() {
 //主動畫animate()
 function animate() {
     requestAnimationFrame(animate);
-<<<<<<< HEAD
-    // controls.update();
-    updateScreenMove();
-    updateFriction();
-=======
     controls.update();
->>>>>>> parent of 265fdc5... 完成畫面移動後的摩擦力
     render();
     // mouseMoveOnGroundPlayBack();
     // moveMouseGroundPlayBack(event);
@@ -551,11 +314,7 @@ sphereInter.visible = false;
 scene.add(sphereInter);
 sphereInter.material.transparent = true;
 sphereInter.material.opacity = 0.7;
-<<<<<<< HEAD
-
-=======
 console.log(sphereInter.material.opacity);
->>>>>>> parent of 265fdc5... 完成畫面移動後的摩擦力
 function mouseMoveOnGroundPlayBack() {
     raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObjects(scene.children[5].children, true);

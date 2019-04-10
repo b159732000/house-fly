@@ -14,6 +14,7 @@
     - 按照滑鼠點擊位置，設定camera視線中心點的x和y
     - 計算滑鼠點擊與平面交界 (Raycaster)
     - 滑鼠點擊地面的視覺回饋
+    - 滑鼠在地面上移動視覺回饋
 - 除錯輔助工具
     - HTML按鈕
         - 按一下增加減少相機視線中心x、y、z軸10，並更新注視點紅球位置
@@ -33,8 +34,9 @@ var element = document.getElementById('demo'),
     onPointerDownLat,
     onPointerDownLon,
     fov = 70,
-    lat = 0,
-    lon = 0,
+    screen = {lat: 0, lon: 90},
+    // lat = 0,
+    // lon = 90,
     onMouseDownLon = 0,
     onMouseDownLat = 0,
     //camera注視點中心
@@ -50,17 +52,34 @@ var element = document.getElementById('demo'),
     sphere,
     spheres = [],
     spheresIndex = 0;
+//畫面摩擦力
+var prevLon = screen.lon,
+    prevLat = screen.lat,
+    lonVelocity = 0,
+    latVelocity = 0,
+    dampingFactor = 0.2,
+    // dampingFactor = 0.05,
+    then = Date.now();
 //未分類的變數
 var raycaster = new THREE.Raycaster();
 var sky, sunSphere;
 var scene = new THREE.Scene();
+var isUserInteracting = false;
+var moveSpeed = {
+    speed: -0.05
+    // speed: -0.175
+    // speed: -0.05
+};
 
 
 
 //設定WebGL Render
 //下下行有抗鋸齒
-// var renderer = new THREE.WebGLRenderer();
-var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+var renderer = new THREE.WebGLRenderer();
+// var renderer = new THREE.WebGLRenderer({
+//     antialias: true,
+//     alpha: true
+// });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -166,19 +185,218 @@ function onDocumentMouseDown(event) {
     onPointerDownPointerY = event.clientY;
     onPointerDownLon = screen.lon;
     onPointerDownLat = screen.lat;
-    // onPointerDownLon = lon;
-    // onPointerDownLat = lat;
     isUserInteracting = true;
     element.addEventListener('mousemove', onDocumentMouseMove, false);
     element.addEventListener('mouseup', onDocumentMouseUp, false);
 }
 
+
+
+
+
+
+//畫面摩擦力 Start
+function updateFriction() {
+
+    // Get time since last frame
+    var now = Date.now();
+    var dT = now - then;
+
+    if (isUserInteracting) {
+        // Get distance travelled since last frame
+        var dLon = screen.lon - prevLon;
+        var dLat = screen.lat - prevLat;
+        // velocity = distance / time
+        lonVelocity = dLon / dT;
+        latVelocity = dLat / dT;
+    } else {
+        // old position + ( velocity * time ) = new position
+        screen.lon += lonVelocity * dT;
+        screen.lat += latVelocity * dT;
+        lonVelocity *= (1 - dampingFactor);
+        latVelocity *= (1 - dampingFactor);
+    }
+    // if (isUserInteracting) {
+    //     var dLon = lon - prevLon;
+    //     var dLat = lat - prevLat;
+
+    //     lonVelocity = dLon / dT;
+    //     latVelocity = dLat / dT;
+    // } else {
+    //     lon += lonVelocity * dT;
+    //     lat += latVelocity * dT;
+    //     lonVelocity *= (1 - dampingFactor);
+    //     latVelocity *= (1 - dampingFactor);
+    // }
+
+    // Save these for next frame
+    then = now;
+    prevLon = screen.lon;
+    prevLat = screen.lat;
+
+}
+//畫面摩擦力 End
+
+
+
+
+
+
+
+
+
+// //增加/減少畫面移動速度
+// //當按住畫面時，開始不斷監聽滑鼠是否正在移動，若正在移動則將畫面移動速度提升，反之降低
+// setInterval(() => {
+
+//     //當滑鼠按住畫面時，開始調整畫面移動速度
+//     if (isUserInteracting) {
+
+//         //mouseStatusArray有三筆以上資料，才執行判斷滑鼠移動狀態邏輯
+//         if (mouseStatusArray.length >= 1) {
+
+//             //如果滑鼠移動狀態有改變，才判斷滑鼠是否正在移動
+//             if (mouseStatusArray[2].moving !== mouseStatusArray[1].moving) {
+
+//                 //判斷滑鼠是否正在移動
+//                 if (mouseStatusArray[2].moving) {
+//                     createjs.Tween.get(moveSpeed).to({
+//                         speed: -0.035
+//                     }, 500);
+//                 } else {
+//                     createjs.Tween.get(moveSpeed).to({
+//                         speed: -0.005
+//                     }, 500);
+//                 }
+//             }
+//         }
+//     }
+
+//     console.log(moveSpeed.speed);
+
+// }, 500);
+
+
+
+// //Is mouse moving?
+// var mouseStatusArray = [];
+// var mouseStatusCurrentX = 0,
+//     mouseStatusCurrentY = 0,
+//     mouseMoving = false,
+//     thisMouseTime;
+// element.addEventListener('mousemove', changeMouseCurrentXY, false);
+
+// function saveMouseStatusToArray() {
+//     //得到最新的滑鼠位置，存在mouseStatus中
+//     // changeMouseCurrentXY();
+
+//     //替最新的滑鼠位置加入時間戳記，存在mouseStatus中
+//     var now = Date.now();
+//     thisMouseTime = now;
+
+//     //將最新的mouseStatus加入mouseStatusArray陣列中
+//     latestMouseStatus = new mouseStatus(mouseStatusCurrentX, mouseStatusCurrentY, mouseMoving, thisMouseTime);
+//     mouseStatusArray.push(latestMouseStatus);
+// }
+
+// function mouseStatus(currentX, currentY, moving, time) {
+//     this.currentX = currentX;
+//     this.currentY = currentY;
+//     this.moving = moving;
+//     this.time = time;
+// }
+
+// setInterval(() => {
+//     //確保mouseStatusArray陣列只有最新的兩個元素
+//     if (mouseStatusArray.length >= 3) {
+//         mouseStatusArray.shift();
+//     }
+
+//     //若mouseStatusArray有兩筆以上資料，計算滑鼠是否移動
+//     if (mouseStatusArray.length >= 2) {
+//         isMouseMoving();
+//     }
+
+//     saveMouseStatusToArray();
+//     if (mouseStatusArray.length >= 3) {
+//         // console.log(mouseStatusArray[2].moving);
+//     }
+
+// }, 100);
+
+// function isMouseMoving() {
+//     if (mouseStatusArray[0].currentX !== mouseStatusArray[1].currentX && mouseStatusArray[0].currentY !== mouseStatusArray[1].currentY) {
+//         mouseMoving = true;
+//     } else {
+//         mouseMoving = false;
+//     }
+// }
+
+// function changeMouseCurrentXY(event) {
+//     mouseStatusCurrentX = event.clientX;
+//     mouseStatusCurrentY = event.clientY;
+// }
+// //Is mouse moving? END
+// //增加/減少畫面移動速度 END
+
+
+
+//畫面平移 Start
+// var mouseCurrentX = 0, mouseCurrentY = 0;
+
+// element.addEventListener('mousemove', renewMouseClientXY,false);
+
+// function renewMouseClientXY() {
+//     mouseCurrentX = event.clientX;
+//     mouseCurrentY = event.clientY;
+// }
+
+// var lastLon = lon, lastLat = lat;
+// setInterval(() => {
+//     if (isUserInteracting === true) {
+//         lastLon = lon;
+//         lastLat = lat;
+//         newLon = (mouseCurrentX - onPointerDownPointerX) * moveSpeed.speed + onPointerDownLon;
+//         newLat = (mouseCurrentY - onPointerDownPointerY) * moveSpeed.speed + onPointerDownLat;
+//         createjs.Tween.get(lon).to({
+//             this: newLon
+//         }, 1000);
+//         createjs.Tween.get(lat).to({
+//             this: newLat
+//         }, 1000);
+//     }
+// }, 100);
+
+// function log() {
+//     console.log(lastLon);
+//     console.log(lastLat);
+//     console.log(lon);
+//     console.log(lat);
+// }
+//畫面平移 End
+
+
+
 function onDocumentMouseMove(event) {
-    lon = (event.clientX - onPointerDownPointerX) * -0.175 + onPointerDownLon;
-    lat = (event.clientY - onPointerDownPointerY) * -0.175 + onPointerDownLat;
+    // createjs.Tween.get(moveSpeed).to({
+    //     speed: -0.075
+    // }, 500);
+
+    //原始畫面移動公式
+    if (isUserInteracting === true) {
+        screen.lon = (event.clientX - onPointerDownPointerX) * moveSpeed.speed + onPointerDownLon;
+        screen.lat = (event.clientY - onPointerDownPointerY) * moveSpeed.speed + onPointerDownLat;
+    }
+
+    // mouseCurrentX = event.clientX;
+    // mouseCurrentY = event.clientY;
+
+    // lon = (event.clientX - onPointerDownPointerX) * -0.175 + onPointerDownLon;
+    // lat = (event.clientY - onPointerDownPointerY) * -0.175 + onPointerDownLat;
 }
 
 function onDocumentMouseUp(event) {
+    // moveSpeed.speed = -0.175;
     isUserInteracting = false;
     element.removeEventListener('mousemove', onDocumentMouseMove, false);
     element.removeEventListener('mouseup', onDocumentMouseUp, false);
@@ -221,9 +439,6 @@ function render() {
     screen.lat = Math.max(-85, Math.min(85, screen.lat));
     phi = THREE.Math.degToRad(90 - screen.lat);
     theta = THREE.Math.degToRad(screen.lon);
-    // lat = Math.max(-85, Math.min(85, lat));
-    // phi = THREE.Math.degToRad(90 - lat);
-    // theta = THREE.Math.degToRad(lon);
     // camera.position.x = 1 * Math.sin(phi) * Math.cos(theta);
     // camera.position.y = 1 * Math.cos(phi);
     // camera.position.z = 1 * Math.sin(phi) * Math.sin(theta);
@@ -248,8 +463,10 @@ function render() {
 //主動畫animate()
 function animate() {
     requestAnimationFrame(animate);
-    controls.update();
+    // controls.update();
+    updateFriction();
     render();
+    // isMouseMoving();
     // mouseMoveOnGroundPlayBack();
     // moveMouseGroundPlayBack(event);
     // if(sphereMesh2){} else {
@@ -265,16 +482,15 @@ animate();
 function setCameraPositionByClickXY(positionVector) {
     createjs.Tween.get(cameraPosition).to({
         x: positionVector.x
-    }, 1000);
+    }, 1000, createjs.Ease.cubicInOut);
     createjs.Tween.get(cameraPosition).to({
         z: positionVector.z
-    }, 1000);
+    }, 1000, createjs.Ease.cubicInOut);
 }
 
 
 
 //計算滑鼠點擊與平面交界 (Raycaster)
-
 var mouse = new THREE.Vector2();
 
 function scanMouseProjectToObject(event) {
@@ -286,9 +502,12 @@ function scanMouseProjectToObject(event) {
     //更新raycaster
     raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObjects(scene.children[5].children);
-
-    setCameraPositionByClickXY(intersects[0].point);
-    console.log(intersects[0].point);
+    if (intersects[0].object.name == "Box003") {
+        setCameraPositionByClickXY(intersects[0].point);
+    } else {
+        // console.log("no")
+    };
+    // console.log(intersects[0].point);
     // clickGroundPlayBack(intersects[0].point);
 }
 window.addEventListener('click', scanMouseProjectToObject, false);
@@ -297,13 +516,14 @@ window.addEventListener('click', scanMouseProjectToObject, false);
 
 //滑鼠在地面上移動視覺回饋
 element.addEventListener('mousemove', a, false);
+
 function a() {
     event.preventDefault();
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 }
 
-var geometryMoMo = new THREE.CylinderGeometry(15, 15, 1);
+var geometryMoMo = new THREE.CylinderGeometry(15, 15, 1, 45);
 // var geometryMoMo = new THREE.SphereBufferGeometry(5);
 var materialMoMo = new THREE.MeshBasicMaterial({
     color: 0xffffff
@@ -315,12 +535,15 @@ scene.add(sphereInter);
 sphereInter.material.transparent = true;
 sphereInter.material.opacity = 0.7;
 console.log(sphereInter.material.opacity);
+
 function mouseMoveOnGroundPlayBack() {
     raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObjects(scene.children[5].children, true);
-    if (intersects.length > 0) {
+
+    if (intersects.length > 0 && intersects[0].object.name == "Box003") {
         sphereInter.visible = true;
         sphereInter.position.copy(intersects[0].point);
+        // console.log(intersects[0].object.name);
     } else {
         sphereInter.visible = false;
     }

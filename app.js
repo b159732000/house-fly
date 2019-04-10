@@ -207,11 +207,6 @@ function onDocumentMouseDown(event) {
 
 
 
-
-
-
-
-
 function onDocumentMouseMove(event) {
     // createjs.Tween.get(moveSpeed).to({
     //     speed: -0.075

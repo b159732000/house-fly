@@ -136,7 +136,7 @@ function addLight(h, s, l, x, y, z) {
 
 
 //載入相機控制器 (Orbitcontrol)
-// var controls = new THREE.OrbitControls(camera);
+var controls = new THREE.OrbitControls(camera);
 // controls.enableZoom = true;
 // controls.minDistance = 0;
 // controls.maxDistance = 1000;
@@ -145,14 +145,49 @@ function addLight(h, s, l, x, y, z) {
 // controls.rotateSpeed = 0.5;
 // controls.maxPolarAngle = Math.PI / 2;
 
+// var XX = 0, YY = 0, ZZ = 0;
 
+// function addModel(axis) {
+//     if(axis == "X") { XX += 10}
+//     if(axis == "Y") { YY += 10}
+//     if(axis == "Z") { ZZ += 10}
+//     if(axis == "-X") { XX -= 10}
+//     if(axis == "-Y") { YY -= 10}
+//     if(axis == "-z") { ZZ -= 10}
+// }
 
-//读取FBX模型
+// //读取FBX模型
+// var loader = new THREE.FBXLoader();
+// var texLoader = new THREE.TGALoader();
+
+// loader.load('./2048/liaogou.FBX', function (object) {
+//     object.traverse(function (child) {
+//         if (child.isMesh) {
+
+//             var texture1 = texLoader.load('2048/' + child.name + 'VRay完成贴图.tga');
+//             var materal1 = new THREE.MeshBasicMaterial({
+//                 map: texture1,
+//                 transparent: true
+//             });
+//             child.material = materal1;
+//             child.castShadow = true;
+//             child.lights = true;
+//         }
+//     })
+
+//     object.scale.set(0.12, 0.12, 0.12);
+//     object.position.set(XX, YY, ZZ);
+//     console.log(object);
+//     scene.add(object);
+// })
+
+//成功的模型
 var loader = new THREE.FBXLoader();
 var texLoader = new THREE.TGALoader();
 
 loader.load('./lwf/1111.FBX', function (object) {
     object.traverse(function (child) {
+        console.log(child);
         if (child.isMesh) {
 
             var texture1 = texLoader.load('lwf/' + child.name + 'VRay完成贴图.tga');
@@ -221,7 +256,6 @@ scene.background = reflectionCube;
 // element.addEventListener(clickEvent, test, false);
 // element.addEventListener('mousewheel', onDocumentMouseWheel, false);
 // element.addEventListener('DOMMouseScroll', onDocumentMouseWheel, false);
-window.addEventListener('click', scanMouseProjectToObject, false);
 // window.addEventListener('click', scanMouseProjectToObject, false);
 // element.addEventListener('mousemove', changeMouseCurrentXY, false);
 // element.addEventListener('mousemove', a, false);
@@ -239,6 +273,7 @@ function isMobile() {
 }
 
 if (isMobile()) {
+    window.addEventListener('click', scanMouseProjectToObject, false);
     element.addEventListener('touchstart', onDocumentMouseDown, false);
     element.addEventListener('touchmove', test, false);
     element.addEventListener('touchmove', changeMouseCurrentXY, false);
@@ -293,6 +328,7 @@ if (isMobile()) {
         element.removeEventListener('touchend', onDocumentMouseUp, false);
     }
 } else {
+    window.addEventListener('click', scanMouseProjectToObject, false);
     element.addEventListener('mousedown', onDocumentMouseDown, false);
     element.addEventListener('mousemove', changeMouseCurrentXY, false);
     element.addEventListener('mousemove', a, false);
@@ -512,7 +548,7 @@ function render() {
 //主動畫animate()
 function animate() {
     requestAnimationFrame(animate);
-    // controls.update();
+    controls.update();
     // console.log(mouseMoving);
     updateFriction();
     render();
